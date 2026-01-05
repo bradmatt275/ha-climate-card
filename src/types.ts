@@ -46,10 +46,20 @@ export interface HouseACConfig {
 
 export interface ACZoneConfig {
   name: string;
-  state_entity: string;
-  value_entity: string;
-  value_type: 'temperature' | 'percentage';
-  step?: number;
+  // Control mode select entity - if present, zone supports temp/fan switching
+  // The entity's current state determines the display mode (Temperature vs Fan/Percentage)
+  control_mode_entity?: string;
+  // Power toggle switch
+  power_entity: string;
+  // Current temperature sensor
+  temperature_entity?: string;
+  // Current setpoint sensor (displays current value)
+  setpoint_entity?: string;
+  // Setpoint control buttons (for button-based control)
+  setpoint_up_entity?: string;
+  setpoint_down_entity?: string;
+  // Alternative: number entity for direct setpoint control
+  setpoint_number_entity?: string;
   icon?: string;
 }
 

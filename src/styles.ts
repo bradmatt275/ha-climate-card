@@ -435,6 +435,7 @@ export const sensorCardStyles = css`
     padding: 12px;
     cursor: pointer;
     transition: background-color 100ms ease;
+    overflow: hidden;
   }
   
   .sensor-card:hover {
@@ -489,6 +490,10 @@ export const sensorCardStyles = css`
   .sensor-sparkline {
     height: 32px;
     margin-top: 4px;
+    margin-left: -12px;
+    margin-right: -12px;
+    margin-bottom: -12px;
+    overflow: hidden;
   }
 `;
 

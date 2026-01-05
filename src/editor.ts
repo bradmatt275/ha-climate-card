@@ -185,12 +185,16 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
 
   private _setNestedValue(obj: Record<string, unknown>, path: string, value: unknown): Record<string, unknown> {
     const keys = path.split('.');
-    let current = obj;
+    const result = { ...obj };
+    let current = result;
     
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
+      // Deep clone each level
       if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
         current[key] = {};
+      } else {
+        current[key] = { ...(current[key] as Record<string, unknown>) };
       }
       current = current[key] as Record<string, unknown>;
     }
@@ -202,7 +206,7 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
       current[finalKey] = value;
     }
     
-    return obj;
+    return result;
   }
 
   private _addSensor(): void {
@@ -257,9 +261,7 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     const zones = [...(this._config.house_ac?.zones ?? [])];
     zones.push({
       name: `Zone ${zones.length + 1}`,
-      state_entity: '',
-      value_entity: '',
-      value_type: 'temperature',
+      power_entity: '',
     });
     
     const newConfig = {
@@ -574,31 +576,53 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
                     @change=${(e: Event) => this._updateZone(index, 'name', (e.target as HTMLInputElement).value)}
                   ></ha-textfield>
                   <div class="form-group">
-                    <label>State Entity (Binary Sensor)</label>
+                    <label>Power Entity (Switch) *</label>
                     <ha-selector
                       .hass=${this.hass}
-                      .selector=${{ entity: { domain: ['binary_sensor'] } }}
-                      .value=${zone.state_entity ?? ''}
-                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'state_entity', e.detail.value || '')}
+                      .selector=${{ entity: { domain: ['switch'] } }}
+                      .value=${zone.power_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'power_entity', e.detail.value || '')}
                     ></ha-selector>
                   </div>
                   <div class="form-group">
-                    <label>Value Entity (Number)</label>
+                    <label>Control Mode Entity (Select) - Optional</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['select'] } }}
+                      .value=${zone.control_mode_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'control_mode_entity', e.detail.value || '')}
+                    ></ha-selector>
+                    <small style="color: var(--secondary-text-color); font-size: 11px;">
+                      If set, zone supports Temperature/Fan mode switching. Otherwise, fan-only control.
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label>Temperature Entity (Sensor)</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['sensor'] } }}
+                      .value=${zone.temperature_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'temperature_entity', e.detail.value || '')}
+                    ></ha-selector>
+                  </div>
+                  <div class="form-group">
+                    <label>Setpoint Entity (Sensor)</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['sensor'] } }}
+                      .value=${zone.setpoint_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'setpoint_entity', e.detail.value || '')}
+                    ></ha-selector>
+                  </div>
+                  <div class="form-group">
+                    <label>Setpoint Number (for +/- control)</label>
                     <ha-selector
                       .hass=${this.hass}
                       .selector=${{ entity: { domain: ['number'] } }}
-                      .value=${zone.value_entity ?? ''}
-                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'value_entity', e.detail.value || '')}
+                      .value=${zone.setpoint_number_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'setpoint_number_entity', e.detail.value || '')}
                     ></ha-selector>
                   </div>
-                  <ha-select
-                    label="Value Type"
-                    .value=${zone.value_type ?? 'temperature'}
-                    @selected=${(e: CustomEvent) => this._updateZone(index, 'value_type', (e.target as HTMLSelectElement).value)}
-                  >
-                    <mwc-list-item value="temperature">Temperature</mwc-list-item>
-                    <mwc-list-item value="percentage">Percentage</mwc-list-item>
-                  </ha-select>
                 </div>
               </div>
             `)}
