@@ -104,31 +104,34 @@ export class TempSensorCard extends LitElement {
           }
         }}
       >
-        <div class="sensor-card-header">
-          <span class="sensor-name">${this.config?.name ?? 'Sensor'}</span>
-        </div>
-        <div class="sensor-values">
-          <span 
-            class="sensor-temp value-text" 
-            style="color: ${tempColor}"
-          >
-            ${temperature != null 
-              ? formatTemperature(temperature, 1) 
-              : '--'}
-          </span>
-          ${humidity != null ? html`
-            <span class="sensor-humidity">
-              <ha-icon icon="mdi:water-percent"></ha-icon>
-              ${formatHumidity(humidity, 1)}
+        <div class="sensor-card-content">
+          <div class="sensor-card-header">
+            <span class="sensor-name">${this.config?.name ?? 'Sensor'}</span>
+          </div>
+          <div class="sensor-values">
+            <span 
+              class="sensor-temp value-text" 
+              style="color: ${tempColor}"
+            >
+              ${temperature != null 
+                ? formatTemperature(temperature, 1) 
+                : '--'}
             </span>
-          ` : nothing}
+            ${humidity != null ? html`
+              <span class="sensor-humidity">
+                <ha-icon icon="mdi:water-percent"></ha-icon>
+                ${formatHumidity(humidity, 1)}
+              </span>
+            ` : nothing}
+          </div>
         </div>
         <div class="sensor-sparkline">
           <sparkline-chart
             .data=${this._history}
             .color=${sparklineColor}
-            .height=${40}
+            .height=${100}
             ?animated=${true}
+            style="--sparkline-height: 100%;"
           ></sparkline-chart>
         </div>
       </div>

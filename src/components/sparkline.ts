@@ -23,12 +23,13 @@ export class SparklineChart extends LitElement {
     :host {
       display: block;
       width: 100%;
+      height: var(--sparkline-height, 40px);
     }
     
     svg {
       display: block;
       width: 100%;
-      height: 100%;
+      height: var(--sparkline-height, 40px);
     }
   `;
 

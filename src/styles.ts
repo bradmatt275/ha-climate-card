@@ -430,6 +430,7 @@ export const gridStyles = css`
 
 export const sensorCardStyles = css`
   .sensor-card {
+    position: relative;
     background: var(--card-background-color, var(--ha-card-background));
     border: 1px solid var(--divider-color);
     border-radius: var(--sensor-card-radius);
@@ -437,10 +438,16 @@ export const sensorCardStyles = css`
     cursor: pointer;
     transition: background-color 100ms ease;
     overflow: hidden;
+    min-height: 80px;
   }
   
   .sensor-card:hover {
     background: var(--secondary-background-color);
+  }
+  
+  .sensor-card-content {
+    position: relative;
+    z-index: 2;
   }
   
   .sensor-card-header {
@@ -452,24 +459,27 @@ export const sensorCardStyles = css`
   
   .sensor-name {
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--primary-text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
   
   .sensor-values {
     display: flex;
     align-items: baseline;
     gap: 8px;
+    margin-top: 4px;
   }
   
   .sensor-temp {
     font-family: var(--paper-font-common-code_-_font-family, 'Roboto Mono', monospace);
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   }
   
   .sensor-humidity {
@@ -478,9 +488,10 @@ export const sensorCardStyles = css`
     gap: 2px;
     font-family: var(--paper-font-common-code_-_font-family, 'Roboto Mono', monospace);
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--secondary-text-color);
     font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
   
   .sensor-humidity ha-icon {
@@ -489,12 +500,13 @@ export const sensorCardStyles = css`
   }
   
   .sensor-sparkline {
-    height: 40px;
-    margin-top: 8px;
-    margin-left: -12px;
-    margin-right: -12px;
-    margin-bottom: -12px;
-    overflow: visible;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    z-index: 1;
+    opacity: 0.4;
   }
 `;
 
