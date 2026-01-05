@@ -131,6 +131,8 @@ export const typographyStyles = css`
 export const sectionStyles = css`
   .section {
     margin-top: var(--section-gap);
+    position: relative;
+    z-index: 1;
   }
   
   .section:first-child {
@@ -433,6 +435,7 @@ export const gridStyles = css`
 export const sensorCardStyles = css`
   .sensor-card {
     position: relative;
+    z-index: 2;
     background: var(--card-background-color, var(--ha-card-background));
     border: 1px solid var(--divider-color);
     border-radius: var(--sensor-card-radius);

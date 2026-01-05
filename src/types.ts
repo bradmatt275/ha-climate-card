@@ -43,6 +43,8 @@ export interface HouseACConfig {
   mode_entity: string;
   fan_entity: string;
   zones: ACZoneConfig[];
+  zones_collapsible?: boolean;
+  zones_collapsed?: boolean;
 }
 
 export interface ACZoneConfig {

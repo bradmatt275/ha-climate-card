@@ -28,6 +28,8 @@ export const DEFAULT_TEMPERATURE_SENSORS_CONFIG = {
 export const DEFAULT_HOUSE_AC_CONFIG = {
   name: 'AC',
   icon: 'mdi:air-conditioner',
+  zones_collapsible: true,
+  zones_collapsed: false,
 };
 
 export const DEFAULT_ZONE_STEP = {
