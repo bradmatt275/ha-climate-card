@@ -43,6 +43,23 @@ export class ACMasterRow extends LitElement {
       flex-wrap: wrap;
     }
     
+    @media (max-width: 500px) {
+      .master-row {
+        flex-wrap: wrap;
+      }
+      
+      .row-content {
+        flex: 1 1 auto;
+        min-width: 60px;
+      }
+      
+      .row-controls {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+    }
+    
     .dropdown-wrapper {
       position: relative;
     }

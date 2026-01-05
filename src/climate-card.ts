@@ -57,6 +57,7 @@ export class ClimateCard extends LitElement implements LovelaceCard {
       display: flex;
       flex-direction: column;
       gap: var(--section-gap, 16px);
+      padding-bottom: 4px;
     }
   `;
 

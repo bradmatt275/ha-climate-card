@@ -67,7 +67,7 @@ export const cssVariables = css`
 export const cardStyles = css`
   ha-card {
     padding: var(--card-padding);
-    overflow: hidden;
+    overflow: visible;
   }
 `;
 

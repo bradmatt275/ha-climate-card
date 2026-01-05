@@ -55,6 +55,7 @@ export async function fetchHistory(
 
 /**
  * Process raw history response into usable data points
+ * Handles both minimal_response format and full response format
  */
 function processHistoryData(
   history: HistoryResponse,
@@ -66,12 +67,32 @@ function processHistoryData(
     return [];
   }
 
-  return entityHistory
-    .map((point: HistoryPoint) => ({
-      time: new Date(point.lu * 1000), // lu is last_updated timestamp in seconds
-      value: parseFloat(point.s), // s is state
-    }))
-    .filter((p) => !isNaN(p.value) && isFinite(p.value));
+  const points = entityHistory
+    .map((point: HistoryPoint | { state: string; last_updated: string }) => {
+      // Handle minimal_response format (lu = timestamp in seconds, s = state)
+      if ('lu' in point && 's' in point) {
+        return {
+          time: new Date(point.lu * 1000),
+          value: parseFloat(point.s),
+        };
+      }
+      // Handle full response format (last_updated = ISO string, state = string)
+      if ('last_updated' in point && 'state' in point) {
+        return {
+          time: new Date(point.last_updated),
+          value: parseFloat(point.state),
+        };
+      }
+      return null;
+    })
+    .filter((p): p is TemperatureHistoryPoint => 
+      p !== null && !isNaN(p.value) && isFinite(p.value)
+    );
+    
+  // Sort by time to ensure chronological order
+  points.sort((a, b) => a.time.getTime() - b.time.getTime());
+  
+  return points;
 }
 
 /**

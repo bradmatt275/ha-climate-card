@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant, fireEvent } from 'custom-card-helpers';
 import { ClimateEntityConfig, ClimateEntityAttributes, ClimateMode } from '../types';
 import { cssVariables, rowStyles, dropdownStyles, buttonStyles, typographyStyles } from '../styles';
 import { getModeColors, getModeIcon, getModeClass, getModeLabel, normalizeMode } from '../utils/mode-colors';
@@ -139,6 +139,20 @@ export class ClimateRow extends LitElement {
 
   private _closeDropdowns(): void {
     this._modeDropdownOpen = false;
+  }
+
+  private _handleRowClick(e: Event): void {
+    // Don't open dialog if clicking on controls
+    const target = e.target as HTMLElement;
+    if (target.closest('.dropdown-wrapper') || target.closest('.dropdown') || 
+        target.closest('.setpoint-controls') || target.closest('control-button')) {
+      return;
+    }
+    
+    // Fire more-info event to open entity dialog
+    fireEvent(this, 'hass-more-info', {
+      entityId: this.config.entity,
+    });
   }
 
   private async _selectMode(mode: ClimateMode): Promise<void> {
@@ -293,14 +307,14 @@ export class ClimateRow extends LitElement {
         <div class="backdrop" @click=${this._closeDropdowns}></div>
       ` : nothing}
       
-      <div class=${classMap(rowClasses)}>
+      <div class=${classMap(rowClasses)} @click=${this._handleRowClick} style="cursor: pointer;">
         <div class="row-icon">
           <ha-icon .icon=${icon}></ha-icon>
         </div>
         <div class="row-content">
           <span class="row-name">${name}</span>
         </div>
-        <div class="row-controls">
+        <div class="row-controls" @click=${(e: Event) => e.stopPropagation()}>
           ${this._renderModeDropdown()}
           ${this._renderSetpointControls()}
         </div>
