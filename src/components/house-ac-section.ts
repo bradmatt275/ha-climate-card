@@ -48,6 +48,7 @@ export class HouseACSection extends LitElement {
           .hass=${this.hass}
           .name=${name}
           .icon=${icon}
+          .powerEntity=${this.config.power_entity ?? ''}
           .modeEntity=${this.config.mode_entity}
           .fanEntity=${this.config.fan_entity}
         ></ac-master-row>

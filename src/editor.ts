@@ -538,6 +538,16 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
             ></ha-textfield>
             
             <div class="form-group">
+              <label>Power Entity (Switch) - Click row to toggle</label>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ entity: { domain: ['switch'] } }}
+                .value=${houseAC?.power_entity ?? ''}
+                @value-changed=${(e: CustomEvent) => this._updateConfigValue('house_ac.power_entity', e.detail.value)}
+              ></ha-selector>
+            </div>
+            
+            <div class="form-group">
               <label>Mode Entity (Select)</label>
               <ha-selector
                 .hass=${this.hass}
@@ -615,12 +625,21 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
                     ></ha-selector>
                   </div>
                   <div class="form-group">
-                    <label>Setpoint Number (for +/- control)</label>
+                    <label>Setpoint Up Button</label>
                     <ha-selector
                       .hass=${this.hass}
-                      .selector=${{ entity: { domain: ['number'] } }}
-                      .value=${zone.setpoint_number_entity ?? ''}
-                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'setpoint_number_entity', e.detail.value || '')}
+                      .selector=${{ entity: { domain: ['button'] } }}
+                      .value=${zone.setpoint_up_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'setpoint_up_entity', e.detail.value || '')}
+                    ></ha-selector>
+                  </div>
+                  <div class="form-group">
+                    <label>Setpoint Down Button</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['button'] } }}
+                      .value=${zone.setpoint_down_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateZone(index, 'setpoint_down_entity', e.detail.value || '')}
                     ></ha-selector>
                   </div>
                 </div>

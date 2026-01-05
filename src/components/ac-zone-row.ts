@@ -2,7 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { HomeAssistant } from 'custom-card-helpers';
-import { ACZoneConfig, NumberEntityAttributes } from '../types';
+import { ACZoneConfig } from '../types';
 import { cssVariables, rowStyles, buttonStyles, typographyStyles } from '../styles';
 import { formatTemperature, formatPercentage } from '../utils/format';
 
@@ -119,28 +119,7 @@ export class ACZoneRow extends LitElement {
         return parseFloat(entity.state);
       }
     }
-    // Fall back to setpoint number entity
-    if (this.config?.setpoint_number_entity) {
-      const entity = this.hass?.states[this.config.setpoint_number_entity];
-      if (entity && entity.state !== 'unknown' && entity.state !== 'unavailable') {
-        return parseFloat(entity.state);
-      }
-    }
     return null;
-  }
-
-  private _getSetpointLimits(): { min: number; max: number; step: number } {
-    if (!this.config?.setpoint_number_entity) {
-      return { min: 16, max: 30, step: 1 };
-    }
-    const entity = this.hass?.states[this.config.setpoint_number_entity];
-    const attrs = entity?.attributes as NumberEntityAttributes | undefined;
-    
-    return {
-      min: attrs?.min ?? 16,
-      max: attrs?.max ?? 30,
-      step: attrs?.step ?? 1,
-    };
   }
 
   private _getControlMode(): string | null {
@@ -157,27 +136,28 @@ export class ACZoneRow extends LitElement {
     });
   }
 
-  private async _adjustSetpoint(delta: number): Promise<void> {
-    if (!this.config?.setpoint_number_entity) return;
+  private async _pressSetpointUp(): Promise<void> {
+    if (!this.config?.setpoint_up_entity) return;
     
-    const currentValue = this._getSetpoint();
-    if (currentValue === null) return;
+    await this.hass.callService('button', 'press', {
+      entity_id: this.config.setpoint_up_entity,
+    });
+  }
 
-    const { min, max, step } = this._getSetpointLimits();
-    const newValue = Math.max(min, Math.min(max, currentValue + delta * step));
-
-    await this.hass.callService('number', 'set_value', {
-      entity_id: this.config.setpoint_number_entity,
-      value: newValue,
+  private async _pressSetpointDown(): Promise<void> {
+    if (!this.config?.setpoint_down_entity) return;
+    
+    await this.hass.callService('button', 'press', {
+      entity_id: this.config.setpoint_down_entity,
     });
   }
 
   private _handleDecrement(): void {
-    this._adjustSetpoint(-1);
+    this._pressSetpointDown();
   }
 
   private _handleIncrement(): void {
-    this._adjustSetpoint(1);
+    this._pressSetpointUp();
   }
 
   /**
@@ -213,8 +193,8 @@ export class ACZoneRow extends LitElement {
     const setpoint = this._getSetpoint();
     const controlMode = this._getControlMode();
     const icon = this.config?.icon ?? 'mdi:air-conditioner';
-    const { min, max } = this._getSetpointLimits();
-    const hasSetpointControl = !!this.config?.setpoint_number_entity;
+    // Show controls if we have button entities for up/down
+    const hasSetpointControl = !!this.config?.setpoint_up_entity && !!this.config?.setpoint_down_entity;
     const showSetpoint = setpoint !== null;
 
     const iconClasses = {
@@ -258,14 +238,12 @@ export class ACZoneRow extends LitElement {
             <control-button
               icon="mdi:minus"
               size="small"
-              ?disabled=${setpoint === null || setpoint <= min}
               aria-label="Decrease setpoint"
               @button-click=${this._handleDecrement}
             ></control-button>
             <control-button
               icon="mdi:plus"
               size="small"
-              ?disabled=${setpoint === null || setpoint >= max}
               aria-label="Increase setpoint"
               @button-click=${this._handleIncrement}
             ></control-button>

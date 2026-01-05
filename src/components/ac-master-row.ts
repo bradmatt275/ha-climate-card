@@ -11,6 +11,7 @@ export class ACMasterRow extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ type: String }) name = 'AC';
   @property({ type: String }) icon = 'mdi:air-conditioner';
+  @property({ type: String }) powerEntity = '';
   @property({ type: String }) modeEntity = '';
   @property({ type: String }) fanEntity = '';
 
@@ -29,6 +30,11 @@ export class ACMasterRow extends LitElement {
     
     .master-row {
       position: relative;
+      cursor: pointer;
+    }
+    
+    .master-row:hover {
+      background: var(--secondary-background-color);
     }
     
     .row-controls {
@@ -148,6 +154,29 @@ export class ACMasterRow extends LitElement {
     });
   }
 
+  private async _togglePower(): Promise<void> {
+    if (!this.powerEntity) return;
+    
+    await this.hass.callService('switch', 'toggle', {
+      entity_id: this.powerEntity,
+    });
+  }
+
+  private _handleRowClick(e: Event): void {
+    // Don't toggle if clicking on dropdowns
+    const target = e.target as HTMLElement;
+    if (target.closest('.dropdown-wrapper') || target.closest('.dropdown')) {
+      return;
+    }
+    this._togglePower();
+  }
+
+  private _isPoweredOn(): boolean {
+    if (!this.powerEntity) return true; // Assume on if no power entity
+    const entity = this.hass?.states[this.powerEntity];
+    return entity?.state === 'on';
+  }
+
   private _renderModeDropdown() {
     const { value, options } = this._getModeState();
     const normalizedMode = normalizeMode(value);
@@ -247,11 +276,13 @@ export class ACMasterRow extends LitElement {
     const { value: modeValue } = this._getModeState();
     const normalizedMode = normalizeMode(modeValue);
     const modeClass = getModeClass(normalizedMode);
+    const isOn = this._isPoweredOn();
 
     const rowClasses = {
       'row': true,
       'master-row': true,
-      [modeClass]: true,
+      [modeClass]: isOn,
+      'off': !isOn,
     };
 
     return html`
@@ -259,7 +290,12 @@ export class ACMasterRow extends LitElement {
         <div class="backdrop" @click=${this._closeDropdowns}></div>
       ` : nothing}
       
-      <div class=${classMap(rowClasses)}>
+      <div 
+        class=${classMap(rowClasses)}
+        @click=${this._handleRowClick}
+        role="button"
+        tabindex="0"
+      >
         <div class="row-icon">
           <ha-icon .icon=${this.icon}></ha-icon>
         </div>

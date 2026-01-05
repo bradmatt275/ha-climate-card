@@ -39,6 +39,7 @@ export interface TemperatureSensorConfig {
 export interface HouseACConfig {
   name?: string;
   icon?: string;
+  power_entity?: string;
   mode_entity: string;
   fan_entity: string;
   zones: ACZoneConfig[];
