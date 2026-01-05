@@ -1,5 +1,9 @@
 # Climate Card
 
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![GitHub Release](https://img.shields.io/github/v/release/bradmatt275/ha-climate-card)](https://github.com/bradmatt275/ha-climate-card/releases)
+
+
 A unified climate monitoring and control card for Home Assistant that brings together weather forecasting, ducted AC zone control, standalone climate entities, and room temperature monitoring with historical trends.
 
 ![Climate Card Preview](docs/examples/screenshots/climate-card-preview.png)
@@ -16,6 +20,8 @@ A unified climate monitoring and control card for Home Assistant that brings tog
 ## Installation
 
 ### HACS (Recommended)
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bradmatt275&repository=ha-climate-card&category=integration)
 
 1. Open HACS in Home Assistant
 2. Go to "Frontend" section

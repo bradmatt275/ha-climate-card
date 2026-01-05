@@ -33,7 +33,7 @@ export class CollapsibleSection extends LitElement {
     
     .section-content-inner {
       padding-top: 8px;
-      padding-bottom: 4px;
+      padding-bottom: 8px;
     }
   `;
 
