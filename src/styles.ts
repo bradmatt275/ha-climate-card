@@ -131,9 +131,13 @@ export const typographyStyles = css`
 export const sectionStyles = css`
   .section {
     margin-top: var(--section-gap);
-    /* Add small padding to prevent border cutoff on child elements */
-    padding: 1px;
-    margin: -1px;
+    /* Add padding to prevent border cutoff on child elements (4px for mode accent borders) */
+    padding-left: 4px;
+    padding-right: 1px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-left: -4px;
+    margin-right: -1px;
     margin-top: calc(var(--section-gap) - 1px);
   }
   
