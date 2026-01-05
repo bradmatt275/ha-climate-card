@@ -209,6 +209,8 @@ export function clearEntityCache(entityId: string): void {
 
 /**
  * Downsample history data to a maximum number of points
+ * Uses a bucket-based approach that preserves min/max values within each bucket
+ * to ensure important peaks and valleys are not lost
  */
 export function downsampleHistory(
   data: TemperatureHistoryPoint[],
@@ -218,17 +220,114 @@ export function downsampleHistory(
     return data;
   }
   
-  const step = data.length / maxPoints;
-  const result: TemperatureHistoryPoint[] = [];
+  // Find global min and max indices - we want to preserve these
+  let minIdx = 0, maxIdx = 0;
+  let minVal = data[0].value, maxVal = data[0].value;
   
-  for (let i = 0; i < maxPoints; i++) {
-    const index = Math.floor(i * step);
-    result.push(data[index]);
+  for (let i = 1; i < data.length; i++) {
+    if (data[i].value < minVal) {
+      minVal = data[i].value;
+      minIdx = i;
+    }
+    if (data[i].value > maxVal) {
+      maxVal = data[i].value;
+      maxIdx = i;
+    }
   }
   
-  // Always include the last point
-  if (result[result.length - 1] !== data[data.length - 1]) {
-    result.push(data[data.length - 1]);
+  // Use Largest-Triangle-Three-Buckets (LTTB) algorithm for better visual downsampling
+  const result: TemperatureHistoryPoint[] = [];
+  
+  // Always include first point
+  result.push(data[0]);
+  
+  // Calculate bucket size (we need maxPoints - 2 buckets for the middle points)
+  const bucketSize = (data.length - 2) / (maxPoints - 2);
+  
+  let prevSelectedIndex = 0;
+  
+  for (let i = 0; i < maxPoints - 2; i++) {
+    // Calculate bucket boundaries
+    const bucketStart = Math.floor((i) * bucketSize) + 1;
+    const bucketEnd = Math.floor((i + 1) * bucketSize) + 1;
+    
+    // Calculate average point for next bucket (used as reference)
+    const nextBucketStart = Math.floor((i + 1) * bucketSize) + 1;
+    const nextBucketEnd = Math.min(Math.floor((i + 2) * bucketSize) + 1, data.length - 1);
+    
+    let avgX = 0, avgY = 0;
+    const nextBucketLength = nextBucketEnd - nextBucketStart;
+    
+    if (nextBucketLength > 0) {
+      for (let j = nextBucketStart; j < nextBucketEnd; j++) {
+        avgX += j;
+        avgY += data[j].value;
+      }
+      avgX /= nextBucketLength;
+      avgY /= nextBucketLength;
+    } else {
+      avgX = data.length - 1;
+      avgY = data[data.length - 1].value;
+    }
+    
+    // Find point in current bucket that creates largest triangle
+    let maxArea = -1;
+    let selectedIndex = bucketStart;
+    
+    const prevX = prevSelectedIndex;
+    const prevY = data[prevSelectedIndex].value;
+    
+    for (let j = bucketStart; j < bucketEnd && j < data.length - 1; j++) {
+      // Calculate triangle area
+      const area = Math.abs(
+        (prevX - avgX) * (data[j].value - prevY) -
+        (prevX - j) * (avgY - prevY)
+      );
+      
+      if (area > maxArea) {
+        maxArea = area;
+        selectedIndex = j;
+      }
+    }
+    
+    result.push(data[selectedIndex]);
+    prevSelectedIndex = selectedIndex;
+  }
+  
+  // Always include last point
+  result.push(data[data.length - 1]);
+  
+  // Ensure min and max points are included if they weren't already
+  const resultIndices = new Set(result.map((_, i) => {
+    // Find original index
+    for (let j = 0; j < data.length; j++) {
+      if (data[j] === result[i]) return j;
+    }
+    return -1;
+  }));
+  
+  // Insert min point if not already included
+  if (!resultIndices.has(minIdx)) {
+    // Find correct position to insert
+    let insertPos = 0;
+    for (let i = 0; i < result.length; i++) {
+      const origIdx = data.indexOf(result[i]);
+      if (origIdx > minIdx) break;
+      insertPos = i + 1;
+    }
+    result.splice(insertPos, 0, data[minIdx]);
+  }
+  
+  // Insert max point if not already included
+  if (!resultIndices.has(maxIdx)) {
+    // Find correct position to insert
+    let insertPos = 0;
+    for (let i = 0; i < result.length; i++) {
+      const origIdx = data.indexOf(result[i]);
+      if (origIdx > maxIdx) break;
+      insertPos = i + 1;
+    }
+    result.splice(insertPos, 0, data[maxIdx]);
   }
   
   return result;

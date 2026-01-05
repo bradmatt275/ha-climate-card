@@ -19,6 +19,11 @@ export class ClimateSection extends LitElement {
     
     :host {
       display: block;
+      overflow: visible;
+    }
+    
+    .section {
+      overflow: visible;
     }
   `;
 

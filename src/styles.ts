@@ -131,18 +131,10 @@ export const typographyStyles = css`
 export const sectionStyles = css`
   .section {
     margin-top: var(--section-gap);
-    /* Add padding to prevent border cutoff on child elements (4px for mode accent borders) */
-    padding-left: 4px;
-    padding-right: 1px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    margin-left: -4px;
-    margin-right: -1px;
-    margin-top: calc(var(--section-gap) - 1px);
   }
   
   .section:first-child {
-    margin-top: -1px;
+    margin-top: 0;
   }
   
   .section-header-row {
@@ -240,43 +232,41 @@ export const rowStyles = css`
     flex-shrink: 0;
   }
   
-  /* Active row styling */
+  /* Active row styling - use box-shadow for accent to avoid layout issues */
   .row.active {
-    border-left: 4px solid var(--zone-active);
+    box-shadow: inset 4px 0 0 var(--zone-active);
     background: var(--zone-active-container);
   }
   
-  /* Mode-colored row */
+  /* Mode-colored row - use box-shadow for accent */
   .row.mode-cool {
-    border-left: 4px solid var(--climate-cool);
+    box-shadow: inset 4px 0 0 var(--climate-cool);
     background: var(--climate-cool-container);
   }
   
   .row.mode-heat {
-    border-left: 4px solid var(--climate-heat);
+    box-shadow: inset 4px 0 0 var(--climate-heat);
     background: var(--climate-heat-container);
   }
   
   .row.mode-fan,
   .row.mode-fan_only {
-    border-left: 4px solid var(--climate-fan);
+    box-shadow: inset 4px 0 0 var(--climate-fan);
     background: var(--climate-fan-container);
   }
   
   .row.mode-dry {
-    border-left: 4px solid var(--climate-dry);
+    box-shadow: inset 4px 0 0 var(--climate-dry);
     background: var(--climate-dry-container);
   }
   
   .row.mode-auto,
   .row.mode-heat_cool {
-    border-left: 4px solid var(--climate-auto);
+    box-shadow: inset 4px 0 0 var(--climate-auto);
     background: var(--climate-auto-container);
   }
   
-  .row.mode-off {
-    border-left: 4px solid transparent;
-  }
+  /* mode-off has no accent - no special styling needed */
 `;
 
 // ============================================
