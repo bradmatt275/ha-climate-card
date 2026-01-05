@@ -127,7 +127,7 @@ export class TempSensorCard extends LitElement {
           <sparkline-chart
             .data=${this._history}
             .color=${sparklineColor}
-            .height=${32}
+            .height=${40}
             ?animated=${true}
           ></sparkline-chart>
         </div>

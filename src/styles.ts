@@ -489,12 +489,12 @@ export const sensorCardStyles = css`
   }
   
   .sensor-sparkline {
-    height: 32px;
-    margin-top: 4px;
+    height: 40px;
+    margin-top: 8px;
     margin-left: -12px;
     margin-right: -12px;
     margin-bottom: -12px;
-    overflow: hidden;
+    overflow: visible;
   }
 `;
 
