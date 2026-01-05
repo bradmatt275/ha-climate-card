@@ -380,8 +380,10 @@ export const gridStyles = css`
     gap: var(--grid-gap);
     grid-template-columns: repeat(var(--columns, 3), 1fr);
     /* Add padding to prevent border cutoff */
-    padding: 1px;
-    margin: -1px;
+    padding: 2px;
+    padding-bottom: 4px;
+    margin: -2px;
+    margin-bottom: -4px;
   }
   
   @media (max-width: 800px) {

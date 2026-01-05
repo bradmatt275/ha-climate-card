@@ -21,7 +21,7 @@ export const DEFAULT_WEATHER_CONFIG = {
 export const DEFAULT_TEMPERATURE_SENSORS_CONFIG = {
   collapsible: true,
   collapsed: false,
-  trend_hours: 12,
+  trend_hours: 24,
   columns: 3,
 };
 

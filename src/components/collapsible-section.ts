@@ -23,12 +23,13 @@ export class CollapsibleSection extends LitElement {
     }
     
     .section-content-wrapper {
-      overflow: hidden;
+      overflow: visible;
       transition: height 200ms ease;
     }
     
     .section-content-wrapper.collapsed {
       height: 0 !important;
+      overflow: hidden;
     }
     
     .section-content-inner {
