@@ -131,10 +131,14 @@ export const typographyStyles = css`
 export const sectionStyles = css`
   .section {
     margin-top: var(--section-gap);
+    /* Add small padding to prevent border cutoff on child elements */
+    padding: 1px;
+    margin: -1px;
+    margin-top: calc(var(--section-gap) - 1px);
   }
   
   .section:first-child {
-    margin-top: 0;
+    margin-top: -1px;
   }
   
   .section-header-row {
@@ -381,6 +385,9 @@ export const gridStyles = css`
     display: grid;
     gap: var(--grid-gap);
     grid-template-columns: repeat(var(--columns, 3), 1fr);
+    /* Add padding to prevent border cutoff */
+    padding: 1px;
+    margin: -1px;
   }
   
   @media (max-width: 800px) {

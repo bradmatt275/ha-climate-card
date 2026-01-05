@@ -39,6 +39,16 @@ export async function fetchHistory(
       significant_changes_only: false,
     });
 
+    // Debug: log raw response
+    console.debug(`[climate-card] History for ${entityId}:`, {
+      requestedHours: hours,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      rawDataLength: history[entityId]?.length ?? 0,
+      firstItem: history[entityId]?.[0],
+      lastItem: history[entityId]?.[history[entityId]?.length - 1],
+    });
+
     const data = processHistoryData(history, entityId);
     
     // Cache the result
@@ -91,6 +101,19 @@ function processHistoryData(
     
   // Sort by time to ensure chronological order
   points.sort((a, b) => a.time.getTime() - b.time.getTime());
+  
+  // Debug: log processed data
+  if (points.length > 0) {
+    console.debug(`[climate-card] Processed history for ${entityId}:`, {
+      pointCount: points.length,
+      firstTime: points[0].time.toISOString(),
+      firstValue: points[0].value,
+      lastTime: points[points.length - 1].time.toISOString(),
+      lastValue: points[points.length - 1].value,
+      minValue: Math.min(...points.map(p => p.value)),
+      maxValue: Math.max(...points.map(p => p.value)),
+    });
+  }
   
   return points;
 }
