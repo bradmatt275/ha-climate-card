@@ -41,10 +41,10 @@ export function getModeLabel(mode: string): string {
     off: 'Off',
     cool: 'Cool',
     heat: 'Heat',
-    heat_cool: 'Auto',
+    heat_cool: 'Heat/Cool',
     auto: 'Auto',
     fan: 'Fan',
-    fan_only: 'Fan',
+    fan_only: 'Fan only',
     dry: 'Dry',
   };
 

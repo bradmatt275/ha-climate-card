@@ -262,7 +262,7 @@ export interface NumberEntityAttributes {
 }
 
 export interface ClimateEntityAttributes {
-  hvac_modes: ClimateMode[];
+  hvac_modes: string[];
   min_temp: number;
   max_temp: number;
   target_temp_step?: number;

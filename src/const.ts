@@ -113,7 +113,7 @@ export const MODE_COLORS: Record<string, ModeColorScheme> = {
 export const MODE_ICONS: Record<string, string> = {
   cool: 'mdi:snowflake',
   heat: 'mdi:fire',
-  heat_cool: 'mdi:autorenew',
+  heat_cool: 'mdi:sun-snowflake-variant',
   auto: 'mdi:autorenew',
   fan: 'mdi:fan',
   fan_only: 'mdi:fan',
