@@ -27,6 +27,11 @@ export class CollapsibleSection extends LitElement {
       transition: height 200ms ease;
     }
     
+    .section-content-wrapper:not(.collapsed) {
+      height: auto !important;
+      overflow: visible;
+    }
+    
     .section-content-wrapper.collapsed {
       height: 0 !important;
     }
