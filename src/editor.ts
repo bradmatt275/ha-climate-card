@@ -183,12 +183,14 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
   private _valueChanged(ev: CustomEvent): void {
     if (!this._config || !this.hass) return;
 
-    const target = ev.target as HTMLInputElement;
+    const target = ev.target as HTMLInputElement & { checked?: boolean };
     const configPath = target.getAttribute('data-config-path');
     
     if (!configPath) return;
 
-    const value = target.type === 'checkbox' ? target.checked : ev.detail?.value ?? target.value;
+    // Check if it's a switch/checkbox by looking for the checked property
+    const isSwitch = target.tagName?.toLowerCase() === 'ha-switch' || target.type === 'checkbox';
+    const value = isSwitch ? target.checked : ev.detail?.value ?? target.value;
     
     const newConfig = this._setNestedValue({ ...this._config }, configPath, value);
     
