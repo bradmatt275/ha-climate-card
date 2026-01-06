@@ -66,17 +66,17 @@ export class ACMasterRow extends LitElement {
     
     .dropdown-menu {
       position: absolute;
-      top: 100%;
+      bottom: 100%;
       left: 0;
       right: 0;
       min-width: 120px;
-      margin-top: 4px;
+      margin-bottom: 4px;
       padding: 4px 0;
-      background: var(--card-background-color, var(--ha-card-background));
+      background: var(--card-background-color, var(--ha-card-background, #1c1c1c));
       border: 1px solid var(--divider-color);
       border-radius: var(--button-radius);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 10;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
       max-height: 200px;
       overflow-y: auto;
     }
@@ -114,7 +114,7 @@ export class ACMasterRow extends LitElement {
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 9;
+      z-index: 999;
     }
   `;
 
