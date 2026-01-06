@@ -11,11 +11,13 @@ A unified climate monitoring and control card for Home Assistant that brings tog
 ## Features
 
 - **Weather Header** - Current conditions with 8-day forecast
-- **Temperature Sensors** - Room temperatures with 12-hour sparkline trends
-- **House AC Control** - Ducted AC system with zone management
+- **Temperature Sensors** - Room temperatures with 24-hour sparkline trends
+- **House AC Control** - Ducted AC system with collapsible zone management
 - **Climate Entities** - Standalone climate device controls
+- **Configurable Thresholds** - Custom temperature ranges for color coding
 - **Collapsible Sections** - Focus on what matters
 - **Material You Design** - Dark-first, theme-aware styling
+- **Visual Editor** - Full UI configuration support
 
 ## Installation
 
@@ -69,8 +71,13 @@ weather:
 temperature_sensors:
   collapsible: true
   collapsed: false
-  trend_hours: 12
+  trend_hours: 24
   columns: 3
+  thresholds:
+    cold: 18
+    cool: 22
+    comfortable: 26
+    warm: 30
   sensors:
     - name: Living Room
       temperature_entity: sensor.living_room_temperature
@@ -84,15 +91,16 @@ house_ac:
   icon: mdi:air-conditioner
   mode_entity: select.ac_mode
   fan_entity: select.ac_fan_speed
+  zones_collapsible: true
+  zones_collapsed: false
   zones:
     - name: Master Bedroom
-      state_entity: binary_sensor.ac_zone_master
-      value_entity: number.ac_zone_master_setpoint
-      value_type: temperature
+      power_entity: switch.ac_zone_master
+      temperature_entity: number.ac_zone_master_setpoint
     - name: Living Room
-      state_entity: binary_sensor.ac_zone_living
-      value_entity: number.ac_zone_living_setpoint
-      value_type: temperature
+      power_entity: switch.ac_zone_living
+      percent_open_entity: number.ac_zone_living_damper
+      step: 5
 
 climate_entities:
   - entity: climate.garage_air_con
@@ -117,9 +125,19 @@ climate_entities:
 |--------|------|---------|-------------|
 | `collapsible` | boolean | true | Allow section to collapse |
 | `collapsed` | boolean | false | Initial collapsed state |
-| `trend_hours` | number | 12 | Hours of history for sparkline |
+| `trend_hours` | number | 24 | Hours of history for sparkline |
 | `columns` | number | 3 | Grid columns (1-4) |
+| `thresholds` | object | See below | Temperature color thresholds |
 | `sensors` | array | **Required** | List of sensor configurations |
+
+#### Temperature Thresholds
+
+| Threshold | Default | Color |
+|-----------|---------|-------|
+| `cold` | 18 | Blue (below this) |
+| `cool` | 22 | Cyan |
+| `comfortable` | 26 | Green |
+| `warm` | 30 | Orange (above = Red) |
 
 #### Sensor Configuration
 
@@ -136,8 +154,11 @@ climate_entities:
 |--------|------|---------|-------------|
 | `name` | string | "AC" | Display name |
 | `icon` | string | mdi:air-conditioner | Header icon |
+| `power_entity` | string | - | Optional power switch |
 | `mode_entity` | string | **Required** | Select entity for mode |
 | `fan_entity` | string | **Required** | Select entity for fan speed |
+| `zones_collapsible` | boolean | true | Allow zones to collapse |
+| `zones_collapsed` | boolean | false | Initial zones collapsed state |
 | `zones` | array | **Required** | List of zone configurations |
 
 #### Zone Configuration
@@ -145,11 +166,13 @@ climate_entities:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `name` | string | **Required** | Zone display name |
-| `state_entity` | string | **Required** | Binary sensor for on/off state |
-| `value_entity` | string | **Required** | Number entity for setpoint |
-| `value_type` | string | **Required** | "temperature" or "percentage" |
+| `power_entity` | string | - | Zone power switch entity |
+| `temperature_entity` | string | - | Temperature setpoint entity |
+| `percent_open_entity` | string | - | Damper percentage entity |
 | `step` | number | 0.5/5 | Adjustment step |
 | `icon` | string | - | Optional MDI icon |
+
+*Note: Use either `temperature_entity` or `percent_open_entity` per zone.*
 
 ### Climate Entities
 
@@ -177,3 +200,7 @@ npm run watch
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+## Documentation
+
+For full documentation including customization options and CSS variables, see [docs/README.md](docs/README.md).
