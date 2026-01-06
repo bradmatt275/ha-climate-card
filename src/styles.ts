@@ -381,6 +381,7 @@ export const gridStyles = css`
     display: grid;
     gap: var(--grid-gap);
     grid-template-columns: repeat(var(--columns, 3), 1fr);
+    margin-bottom: 10px;
   }
   
   @media (max-width: 800px) {

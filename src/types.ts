@@ -21,11 +21,19 @@ export interface WeatherConfig {
   collapsed?: boolean;
 }
 
+export interface TemperatureThresholds {
+  cold?: number;
+  cool?: number;
+  comfortable?: number;
+  warm?: number;
+}
+
 export interface TemperatureSensorsConfig {
   collapsible?: boolean;
   collapsed?: boolean;
   trend_hours?: number;
   columns?: number;
+  thresholds?: TemperatureThresholds;
   sensors: TemperatureSensorConfig[];
 }
 

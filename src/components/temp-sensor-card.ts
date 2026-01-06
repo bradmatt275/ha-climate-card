@@ -1,7 +1,7 @@
 import { LitElement, html, css, PropertyValues, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, fireEvent } from 'custom-card-helpers';
-import { TemperatureSensorConfig, TemperatureHistoryPoint } from '../types';
+import { TemperatureSensorConfig, TemperatureHistoryPoint, TemperatureThresholds } from '../types';
 import { cssVariables, sensorCardStyles, typographyStyles } from '../styles';
 import { getTemperatureColor, getTemperatureColorHex } from '../utils/temperature-color';
 import { formatTemperature, formatHumidity, parseStateNumber } from '../utils/format';
@@ -13,6 +13,7 @@ import './sparkline';
 export class TempSensorCard extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ attribute: false }) config!: TemperatureSensorConfig;
+  @property({ attribute: false }) thresholds?: TemperatureThresholds;
   @property({ type: Number }) trendHours = 12;
 
   @state() private _history: TemperatureHistoryPoint[] = [];
@@ -84,11 +85,11 @@ export class TempSensorCard extends LitElement {
     const humidity = this._getHumidity();
     
     const tempColor = temperature != null 
-      ? getTemperatureColor(temperature) 
+      ? getTemperatureColor(temperature, this.thresholds) 
       : 'var(--primary-text-color)';
     
     const sparklineColor = temperature != null 
-      ? getTemperatureColorHex(temperature) 
+      ? getTemperatureColorHex(temperature, this.thresholds) 
       : '#9CA3AF';
 
     return html`

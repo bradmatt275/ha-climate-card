@@ -44,6 +44,7 @@ export class TempSensorGrid extends LitElement {
     const collapsible = this.config.collapsible ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.collapsible;
     const columns = this.config.columns ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.columns;
     const trendHours = this.config.trend_hours ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.trend_hours;
+    const thresholds = this.config.thresholds;
 
     return html`
       <collapsible-section
@@ -61,6 +62,7 @@ export class TempSensorGrid extends LitElement {
               .hass=${this.hass}
               .config=${sensor}
               .trendHours=${trendHours}
+              .thresholds=${thresholds}
             ></temp-sensor-card>
           `)}
         </div>

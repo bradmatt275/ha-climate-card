@@ -1,29 +1,49 @@
 import { TEMPERATURE_THRESHOLDS, TEMPERATURE_COLORS } from '../const';
-import { TemperatureRange } from '../types';
+import { TemperatureRange, TemperatureThresholds } from '../types';
+
+interface Thresholds {
+  cold: number;
+  cool: number;
+  comfortable: number;
+  warm: number;
+}
+
+/**
+ * Merge custom thresholds with defaults
+ */
+function mergeThresholds(custom?: TemperatureThresholds): Thresholds {
+  return {
+    cold: custom?.cold ?? TEMPERATURE_THRESHOLDS.cold,
+    cool: custom?.cool ?? TEMPERATURE_THRESHOLDS.cool,
+    comfortable: custom?.comfortable ?? TEMPERATURE_THRESHOLDS.comfortable,
+    warm: custom?.warm ?? TEMPERATURE_THRESHOLDS.warm,
+  };
+}
 
 /**
  * Get the temperature range category for a temperature value
  */
-export function getTemperatureRange(temp: number): TemperatureRange {
-  if (temp < TEMPERATURE_THRESHOLDS.cold) return 'cold';
-  if (temp < TEMPERATURE_THRESHOLDS.cool) return 'cool';
-  if (temp < TEMPERATURE_THRESHOLDS.comfortable) return 'comfortable';
-  if (temp < TEMPERATURE_THRESHOLDS.warm) return 'warm';
+export function getTemperatureRange(temp: number, customThresholds?: TemperatureThresholds): TemperatureRange {
+  const thresholds = mergeThresholds(customThresholds);
+  if (temp < thresholds.cold) return 'cold';
+  if (temp < thresholds.cool) return 'cool';
+  if (temp < thresholds.comfortable) return 'comfortable';
+  if (temp < thresholds.warm) return 'warm';
   return 'hot';
 }
 
 /**
  * Get the CSS color variable for a temperature value
  */
-export function getTemperatureColor(temp: number): string {
-  const range = getTemperatureRange(temp);
+export function getTemperatureColor(temp: number, customThresholds?: TemperatureThresholds): string {
+  const range = getTemperatureRange(temp, customThresholds);
   return TEMPERATURE_COLORS[range];
 }
 
 /**
  * Get temperature color as a direct hex value (for SVG/canvas use)
  */
-export function getTemperatureColorHex(temp: number): string {
+export function getTemperatureColorHex(temp: number, customThresholds?: TemperatureThresholds): string {
   const hexColors: Record<TemperatureRange, string> = {
     cold: '#3B82F6',
     cool: '#06B6D4',
@@ -32,7 +52,7 @@ export function getTemperatureColorHex(temp: number): string {
     hot: '#EF4444',
   };
   
-  const range = getTemperatureRange(temp);
+  const range = getTemperatureRange(temp, customThresholds);
   return hexColors[range];
 }
 

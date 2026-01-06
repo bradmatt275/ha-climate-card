@@ -23,6 +23,12 @@ export const DEFAULT_TEMPERATURE_SENSORS_CONFIG = {
   collapsed: false,
   trend_hours: 24,
   columns: 3,
+  thresholds: {
+    cold: 18,
+    cool: 22,
+    comfortable: 26,
+    warm: 30,
+  },
 };
 
 export const DEFAULT_HOUSE_AC_CONFIG = {
