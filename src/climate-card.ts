@@ -202,30 +202,25 @@ export class ClimateCard extends LitElement implements LovelaceCard {
   }
 
   private _renderWeatherHeader() {
-    if (!this._config?.weather?.entity) {
+    // Only show header if no weather entity (title only)
+    if (!this._config?.weather?.entity && this._config?.title) {
       return html`
         <div class="card-header">
-          <h2 class="card-title">${this._config?.title ?? DEFAULT_CONFIG.title}</h2>
+          <h2 class="card-title">${this._config.title}</h2>
         </div>
       `;
     }
-
-    return html`
-      <weather-header
-        .hass=${this.hass}
-        .config=${this._config.weather}
-        .title=${this._config.title ?? DEFAULT_CONFIG.title}
-      ></weather-header>
-    `;
+    return nothing;
   }
 
   private _renderForecastSection() {
-    if (!this._config?.weather?.entity || this._forecast.length === 0) {
+    if (!this._config?.weather?.entity) {
       return nothing;
     }
 
     return html`
       <forecast-section
+        .hass=${this.hass}
         .config=${this._config.weather}
         .forecast=${this._forecast}
         ?collapsed=${this._collapsedState.forecast}

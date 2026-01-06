@@ -1,15 +1,17 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { HomeAssistant } from 'custom-card-helpers';
 import { WeatherConfig, WeatherForecast } from '../types';
 import { cssVariables, forecastStyles, gridStyles, typographyStyles } from '../styles';
-import { getWeatherIcon, getWeatherIconColor } from '../utils/weather-icons';
-import { getDayFromISOString } from '../utils/format';
+import { getWeatherIcon, getWeatherIconColor, getConditionLabel } from '../utils/weather-icons';
+import { getDayFromISOString, formatTemperature } from '../utils/format';
 import { DEFAULT_WEATHER_CONFIG } from '../const';
 
 import './collapsible-section';
 
 @customElement('forecast-section')
 export class ForecastSection extends LitElement {
+  @property({ attribute: false }) hass!: HomeAssistant;
   @property({ attribute: false }) config!: WeatherConfig;
   @property({ type: Array }) forecast: WeatherForecast[] = [];
   @property({ type: Boolean }) collapsed = false;
@@ -23,6 +25,62 @@ export class ForecastSection extends LitElement {
     :host {
       display: block;
     }
+    
+    .forecast-grid-with-current {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+    
+    .current-weather {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      background: var(--primary-background-color, rgba(255, 255, 255, 0.05));
+      border-radius: var(--sensor-card-radius, 12px);
+      border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.1));
+      min-width: 80px;
+    }
+    
+    .current-weather .current-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-color, #3B82F6);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    
+    .current-weather .weather-icon {
+      margin: 4px 0;
+    }
+    
+    .current-weather .weather-icon ha-icon {
+      --mdc-icon-size: 32px;
+    }
+    
+    .current-weather .current-temp {
+      font-family: var(--paper-font-common-code_-_font-family, 'Roboto Mono', monospace);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary-text-color);
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .current-weather .current-condition {
+      font-size: 12px;
+      color: var(--secondary-text-color);
+      text-transform: capitalize;
+      margin-top: 2px;
+    }
+    
+    .forecast-days {
+      display: flex;
+      flex: 1;
+      justify-content: space-around;
+    }
   `;
 
   private _handleToggle(): void {
@@ -31,6 +89,44 @@ export class ForecastSection extends LitElement {
       composed: true,
       detail: { section: 'forecast', collapsed: !this.collapsed },
     }));
+  }
+
+  private _getCurrentWeather() {
+    if (!this.hass || !this.config?.entity) return null;
+    
+    const entity = this.hass.states[this.config.entity];
+    if (!entity) return null;
+
+    return {
+      temperature: entity.attributes.temperature,
+      temperature_unit: entity.attributes.temperature_unit ?? '°C',
+      condition: entity.state,
+    };
+  }
+
+  private _renderCurrentWeather() {
+    const weather = this._getCurrentWeather();
+    if (!weather) return nothing;
+
+    const icon = getWeatherIcon(weather.condition);
+    const iconColor = getWeatherIconColor(weather.condition);
+    const conditionLabel = getConditionLabel(weather.condition);
+
+    return html`
+      <div class="current-weather">
+        <span class="current-label">Now</span>
+        <div class="weather-icon" style="color: ${iconColor}">
+          <ha-icon .icon=${icon}></ha-icon>
+        </div>
+        <span class="current-temp">
+          ${weather.temperature != null 
+            ? formatTemperature(weather.temperature, 1, 
+                weather.temperature_unit?.includes('F') ? 'fahrenheit' : 'celsius')
+            : '--'}
+        </span>
+        <span class="current-condition">${conditionLabel}</span>
+      </div>
+    `;
   }
 
   private _renderForecastDay(day: WeatherForecast) {
@@ -60,8 +156,9 @@ export class ForecastSection extends LitElement {
     const forecastDays = this.config?.forecast_days ?? DEFAULT_WEATHER_CONFIG.forecast_days;
     
     const displayForecast = this.forecast.slice(0, forecastDays);
+    const hasCurrentWeather = this._getCurrentWeather() != null;
 
-    if (displayForecast.length === 0) {
+    if (displayForecast.length === 0 && !hasCurrentWeather) {
       return nothing;
     }
 
@@ -72,8 +169,11 @@ export class ForecastSection extends LitElement {
         ?collapsible=${collapsible}
         @toggle-collapse=${this._handleToggle}
       >
-        <div class="forecast-grid">
-          ${displayForecast.map((day) => this._renderForecastDay(day))}
+        <div class="forecast-grid-with-current">
+          ${this._renderCurrentWeather()}
+          <div class="forecast-days">
+            ${displayForecast.map((day) => this._renderForecastDay(day))}
+          </div>
         </div>
       </collapsible-section>
     `;

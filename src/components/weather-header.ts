@@ -11,7 +11,7 @@ import { DEFAULT_WEATHER_CONFIG } from '../const';
 export class WeatherHeader extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ attribute: false }) config!: WeatherConfig;
-  @property({ type: String }) title = 'Climate';
+  @property({ type: String }) title = '';
 
   static styles = css`
     ${cssVariables}
@@ -55,9 +55,7 @@ export class WeatherHeader extends LitElement {
 
     return html`
       <div class="card-header">
-        <div class="header-left">
-          <h2 class="card-title">${this.title}</h2>
-        </div>
+        <div class="header-left"></div>
         ${weather ? html`
           <div class="header-right">
             <div class="weather-current">
