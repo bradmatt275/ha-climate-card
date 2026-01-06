@@ -77,8 +77,6 @@ export class ACMasterRow extends LitElement {
       border-radius: var(--button-radius);
       box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
       z-index: 1000;
-      max-height: 200px;
-      overflow-y: auto;
     }
     
     .dropdown-option {
