@@ -30,6 +30,17 @@ export class ForecastSection extends LitElement {
       display: flex;
       align-items: stretch;
       gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+      margin: 0 -4px;
+      padding: 0 4px;
+    }
+    
+    .forecast-grid-with-current::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
     }
     
     .current-weather {
@@ -80,6 +91,8 @@ export class ForecastSection extends LitElement {
       display: flex;
       flex: 1;
       justify-content: space-around;
+      flex-shrink: 0;
+      min-width: max-content;
     }
   `;
 
