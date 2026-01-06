@@ -142,6 +142,28 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
       align-items: center;
       gap: 8px;
     }
+    
+    .thresholds-section {
+      background: var(--card-background-color);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    
+    .thresholds-header {
+      margin-bottom: 12px;
+    }
+    
+    .thresholds-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--secondary-text-color);
+    }
+    
+    .thresholds-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
   `;
 
   public setConfig(config: ClimateCardConfig): void {
@@ -251,6 +273,27 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
       temperature_sensors: {
         ...this._config.temperature_sensors,
         sensors,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _updateThreshold(field: 'cold' | 'cool' | 'comfortable' | 'warm', value: string): void {
+    const numValue = parseInt(value, 10);
+    if (isNaN(numValue)) return;
+    
+    const currentThresholds = this._config.temperature_sensors?.thresholds ?? {};
+    
+    const newConfig = {
+      ...this._config,
+      temperature_sensors: {
+        ...this._config.temperature_sensors,
+        sensors: this._config.temperature_sensors?.sensors ?? [],
+        thresholds: {
+          ...currentThresholds,
+          [field]: numValue,
+        },
       },
     };
     
@@ -467,6 +510,38 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
                 @change=${this._valueChanged}
               ></ha-switch>
               <span>Collapsible</span>
+            </div>
+            
+            <div class="thresholds-section">
+              <div class="thresholds-header">
+                <span class="thresholds-title">Temperature Thresholds (°C)</span>
+              </div>
+              <div class="thresholds-grid">
+                <ha-textfield
+                  type="number"
+                  label="Cold (blue)"
+                  .value=${String(sensorsConfig?.thresholds?.cold ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.thresholds.cold)}
+                  @change=${(e: Event) => this._updateThreshold('cold', (e.target as HTMLInputElement).value)}
+                ></ha-textfield>
+                <ha-textfield
+                  type="number"
+                  label="Cool (cyan)"
+                  .value=${String(sensorsConfig?.thresholds?.cool ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.thresholds.cool)}
+                  @change=${(e: Event) => this._updateThreshold('cool', (e.target as HTMLInputElement).value)}
+                ></ha-textfield>
+                <ha-textfield
+                  type="number"
+                  label="Comfortable (green)"
+                  .value=${String(sensorsConfig?.thresholds?.comfortable ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.thresholds.comfortable)}
+                  @change=${(e: Event) => this._updateThreshold('comfortable', (e.target as HTMLInputElement).value)}
+                ></ha-textfield>
+                <ha-textfield
+                  type="number"
+                  label="Warm (orange)"
+                  .value=${String(sensorsConfig?.thresholds?.warm ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.thresholds.warm)}
+                  @change=${(e: Event) => this._updateThreshold('warm', (e.target as HTMLInputElement).value)}
+                ></ha-textfield>
+              </div>
             </div>
             
             ${sensors.map((sensor, index) => html`
