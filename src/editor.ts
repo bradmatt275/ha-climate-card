@@ -562,6 +562,15 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
               <span>Collapsible</span>
             </div>
             
+            <div class="checkbox-row">
+              <ha-switch
+                .checked=${sensorsConfig?.collapsed ?? DEFAULT_TEMPERATURE_SENSORS_CONFIG.collapsed}
+                data-config-path="temperature_sensors.collapsed"
+                @change=${this._valueChanged}
+              ></ha-switch>
+              <span>Start Collapsed</span>
+            </div>
+            
             <div class="thresholds-section">
               <div class="thresholds-header">
                 <span class="thresholds-title">Temperature Thresholds (°C)</span>
@@ -690,6 +699,24 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
                 .value=${houseAC?.fan_entity ?? ''}
                 @value-changed=${(e: CustomEvent) => this._updateConfigValue('house_ac.fan_entity', e.detail.value)}
               ></ha-selector>
+            </div>
+            
+            <div class="checkbox-row">
+              <ha-switch
+                .checked=${houseAC?.zones_collapsible ?? DEFAULT_HOUSE_AC_CONFIG.zones_collapsible}
+                data-config-path="house_ac.zones_collapsible"
+                @change=${this._valueChanged}
+              ></ha-switch>
+              <span>Zones Collapsible</span>
+            </div>
+            
+            <div class="checkbox-row">
+              <ha-switch
+                .checked=${houseAC?.zones_collapsed ?? DEFAULT_HOUSE_AC_CONFIG.zones_collapsed}
+                data-config-path="house_ac.zones_collapsed"
+                @change=${this._valueChanged}
+              ></ha-switch>
+              <span>Zones Start Collapsed</span>
             </div>
             
             <h4>Zones</h4>
