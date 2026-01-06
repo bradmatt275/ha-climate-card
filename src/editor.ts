@@ -501,7 +501,7 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
   }
 
   private _getSectionOrder(): string[] {
-    return this._config.section_order ?? [...DEFAULT_SECTION_ORDER];
+    return [...(this._config.section_order ?? DEFAULT_SECTION_ORDER)];
   }
 
   private _moveSectionUp(index: number): void {
