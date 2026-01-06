@@ -2,7 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { HomeAssistant, fireEvent } from 'custom-card-helpers';
-import { ClimateEntityConfig, ClimateEntityAttributes, ClimateMode } from '../types';
+import { ClimateEntityConfig, ClimateEntityAttributes } from '../types';
 import { cssVariables, rowStyles, dropdownStyles, buttonStyles, typographyStyles } from '../styles';
 import { getModeColors, getModeIcon, getModeClass, getModeLabel, normalizeMode } from '../utils/mode-colors';
 import { clamp, getFriendlyName } from '../utils/format';
@@ -135,9 +135,9 @@ export class ClimateRow extends LitElement {
     return entity.attributes as ClimateEntityAttributes;
   }
 
-  private _getState(): ClimateMode {
+  private _getState(): string {
     const entity = this.hass?.states[this.config?.entity];
-    return (entity?.state as ClimateMode) ?? 'off';
+    return entity?.state ?? 'off';
   }
 
   private _getName(): string {
@@ -173,7 +173,7 @@ export class ClimateRow extends LitElement {
     });
   }
 
-  private async _selectMode(mode: ClimateMode): Promise<void> {
+  private async _selectMode(mode: string): Promise<void> {
     this._modeDropdownOpen = false;
     
     await this.hass.callService('climate', 'set_hvac_mode', {
@@ -210,7 +210,9 @@ export class ClimateRow extends LitElement {
   private _renderModeDropdown() {
     const state = this._getState();
     const attrs = this._getEntity();
-    const hvacModes = attrs?.hvac_modes ?? ['off'];
+    // HA doesn't include 'off' in hvac_modes, so we add it manually
+    const hvacModes = attrs?.hvac_modes ?? [];
+    const allModes = hvacModes.includes('off') ? hvacModes : [...hvacModes, 'off'];
     
     const normalizedMode = normalizeMode(state);
     const modeColors = getModeColors(normalizedMode);
@@ -235,7 +237,7 @@ export class ClimateRow extends LitElement {
         </div>
         ${this._modeDropdownOpen ? html`
           <div class="dropdown-menu" role="listbox">
-            ${hvacModes.map(mode => {
+            ${allModes.map(mode => {
               const optionMode = normalizeMode(mode);
               const optionIcon = getModeIcon(optionMode);
               const optionColors = getModeColors(optionMode);
