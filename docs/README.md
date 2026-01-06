@@ -20,8 +20,9 @@ A comprehensive climate monitoring and control card for Home Assistant that brin
 ## Features
 
 ### Weather & Forecast
-- Current outdoor temperature and conditions in the header
-- 8-day weather forecast with high/low temperatures
+- Current outdoor temperature integrated into the forecast section as a prominent "Now" card
+- 7-day weather forecast with high/low temperatures
+- Horizontal scrolling on mobile for forecast overflow
 - Collapsible forecast section
 - Weather icons for each condition
 
@@ -47,6 +48,17 @@ A comprehensive climate monitoring and control card for Home Assistant that brin
 - Temperature control with +/- buttons
 - Click row to open more-info dialog
 - Color-coded accent based on current mode
+
+### Fans
+- Control switch-based fans (ceiling fans, exhaust fans, etc.)
+- Optional power monitoring display
+- Spinning icon animation when fan is on
+- Toggle control with visual feedback
+
+### Section Ordering
+- Customize the order of sections in the card
+- Reorder via visual editor with up/down buttons
+- Persists across page refreshes
 
 ---
 
@@ -78,9 +90,17 @@ A comprehensive climate monitoring and control card for Home Assistant that brin
 type: custom:climate-card
 title: Climate
 
+# Customize section order (optional)
+section_order:
+  - forecast
+  - temperatures
+  - house_ac
+  - climate
+  - fans
+
 weather:
   entity: weather.home
-  forecast_days: 8
+  forecast_days: 7
   collapsible: true
   collapsed: false
 
@@ -127,6 +147,16 @@ climate_entities:
     name: Garage Air Con
     section_name: GARAGE
     icon: mdi:air-conditioner
+
+fans:
+  section_name: FANS
+  entities:
+    - entity: switch.garage_fan
+      name: Garage Fan
+      icon: mdi:fan
+      power_entity: sensor.garage_fan_power
+    - entity: switch.bedroom_ceiling_fan
+      name: Bedroom Fan
 ```
 
 ### Minimal Configuration
@@ -149,11 +179,27 @@ temperature_sensors:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `title` | string | `"Climate"` | Card title displayed in header |
+| `title` | string | `"Climate"` | Card title (shown when no weather entity) |
+| `section_order` | array | See below | Order of sections in the card |
 | `weather` | object | - | Weather configuration |
 | `temperature_sensors` | object | - | Temperature sensors configuration |
 | `house_ac` | object | - | Ducted AC system configuration |
 | `climate_entities` | array | - | Standalone climate entities |
+| `fans` | object | - | Fan switch entities |
+
+#### Section Order
+
+The default section order is:
+```yaml
+section_order:
+  - forecast
+  - temperatures  
+  - house_ac
+  - climate
+  - fans
+```
+
+You can reorder these via the visual editor or in YAML.
 
 ### Weather Options
 
@@ -228,6 +274,22 @@ temperature_sensors:
 | `section_name` | string | - | Section header text |
 | `icon` | string | `"mdi:air-conditioner"` | Entity icon |
 
+### Fans Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `section_name` | string | `"FANS"` | Section header text |
+| `entities` | array | **Required** | Array of fan configurations |
+
+#### Fan Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `entity` | string | **Required** | Switch or fan entity ID |
+| `name` | string | Entity friendly name | Display name |
+| `icon` | string | `"mdi:fan"` | Fan icon |
+| `power_entity` | string | - | Power sensor to show wattage |
+
 ---
 
 ## Visual Editor
@@ -239,10 +301,13 @@ The card includes a full visual editor accessible from the Home Assistant UI:
 3. Use the visual editor to configure all options
 
 The editor includes sections for:
+- General settings (title)
+- Section order (reorder with up/down buttons)
 - Weather configuration
 - Temperature sensors with threshold settings
 - House AC master controls and zones
 - Standalone climate entities
+- Fans with power monitoring
 
 ---
 
@@ -325,6 +390,10 @@ The card automatically adapts to different screen sizes:
 
 ### Recent Updates
 
+- **Fans section** - Control switch-based fans with optional power monitoring
+- **Section ordering** - Customize the order of sections in the card via visual editor
+- **Integrated forecast** - Current temperature now displayed as "Now" card in forecast section
+- **Mobile-friendly forecast** - Horizontal scrolling for forecast on smaller screens
 - **Configurable temperature thresholds** - Set custom temperature ranges for color coding
 - **Collapsible AC zones** - Zones can be collapsed under House AC with `zones_collapsible` and `zones_collapsed` options
 - **24-hour sparkline trends** - Default trend period increased to 24 hours to match native HA cards

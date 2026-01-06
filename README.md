@@ -10,10 +10,12 @@ A unified climate monitoring and control card for Home Assistant that brings tog
 
 ## Features
 
-- **Weather Header** - Current conditions with 8-day forecast
+- **Weather & Forecast** - Current conditions with temperature integrated into the forecast section
 - **Temperature Sensors** - Room temperatures with 24-hour sparkline trends
 - **House AC Control** - Ducted AC system with collapsible zone management
 - **Climate Entities** - Standalone climate device controls
+- **Fans** - Control switch-based fans with optional power monitoring
+- **Section Ordering** - Customize the order of sections to your preference
 - **Configurable Thresholds** - Custom temperature ranges for color coding
 - **Collapsible Sections** - Focus on what matters
 - **Material You Design** - Dark-first, theme-aware styling
@@ -62,9 +64,17 @@ climate_entities:
 type: custom:climate-card
 title: Home Climate
 
+# Customize section order (optional)
+section_order:
+  - forecast
+  - temperatures
+  - house_ac
+  - climate
+  - fans
+
 weather:
   entity: weather.home
-  forecast_days: 8
+  forecast_days: 7
   collapsible: true
   collapsed: false
 
@@ -105,9 +115,41 @@ house_ac:
 climate_entities:
   - entity: climate.garage_air_con
     section_name: Garage
+
+fans:
+  section_name: FANS
+  entities:
+    - entity: switch.garage_fan
+      name: Garage Fan
+      icon: mdi:fan
+      power_entity: sensor.garage_fan_power
+    - entity: switch.bedroom_fan
+      name: Bedroom Fan
 ```
 
 ## Configuration Options
+
+### General
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `title` | string | "Climate" | Card title (only shown when no weather entity) |
+| `section_order` | array | See below | Order of sections in the card |
+
+#### Section Order
+
+The `section_order` option allows you to customize the order sections appear in the card. The default order is:
+
+```yaml
+section_order:
+  - forecast
+  - temperatures
+  - house_ac
+  - climate
+  - fans
+```
+
+You can reorder these or omit sections you don't use. This can also be configured via the visual editor.
 
 ### Weather
 
@@ -183,6 +225,22 @@ climate_entities:
 | `section_name` | string | - | Section header text |
 | `icon` | string | Entity icon | Override icon |
 | `show_humidity` | boolean | false | Show humidity if available |
+
+### Fans
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `section_name` | string | "FANS" | Section header text |
+| `entities` | array | **Required** | List of fan configurations |
+
+#### Fan Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `entity` | string | **Required** | Switch or fan entity ID |
+| `name` | string | Entity name | Display name |
+| `icon` | string | mdi:fan | Override icon |
+| `power_entity` | string | - | Power sensor to show wattage |
 
 ## Development
 
