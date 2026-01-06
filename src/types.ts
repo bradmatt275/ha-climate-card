@@ -11,6 +11,19 @@ export interface ClimateCardConfig extends LovelaceCardConfig {
   temperature_sensors?: TemperatureSensorsConfig;
   house_ac?: HouseACConfig;
   climate_entities?: ClimateEntityConfig[];
+  fans?: FansConfig;
+}
+
+export interface FansConfig {
+  section_name?: string;
+  entities: FanEntityConfig[];
+}
+
+export interface FanEntityConfig {
+  entity: string;
+  name?: string;
+  icon?: string;
+  power_entity?: string;
 }
 
 export interface WeatherConfig {

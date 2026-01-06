@@ -6,9 +6,10 @@ import {
   TemperatureSensorConfig,
   ACZoneConfig,
   ClimateEntityConfig,
+  FanEntityConfig,
 } from './types';
 import { cssVariables } from './styles';
-import { DEFAULT_CONFIG, DEFAULT_WEATHER_CONFIG, DEFAULT_TEMPERATURE_SENSORS_CONFIG, DEFAULT_HOUSE_AC_CONFIG } from './const';
+import { DEFAULT_CONFIG, DEFAULT_WEATHER_CONFIG, DEFAULT_TEMPERATURE_SENSORS_CONFIG, DEFAULT_HOUSE_AC_CONFIG, DEFAULT_FANS_CONFIG } from './const';
 
 @customElement('climate-card-editor')
 export class ClimateCardEditor extends LitElement implements LovelaceCardEditor {
@@ -387,6 +388,53 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     const newConfig = {
       ...this._config,
       climate_entities: entities,
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _addFan(): void {
+    const entities = [...(this._config.fans?.entities ?? [])];
+    entities.push({
+      entity: '',
+    });
+    
+    const newConfig = {
+      ...this._config,
+      fans: {
+        ...this._config.fans,
+        entities,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _removeFan(index: number): void {
+    const entities = [...(this._config.fans?.entities ?? [])];
+    entities.splice(index, 1);
+    
+    const newConfig = {
+      ...this._config,
+      fans: {
+        ...this._config.fans,
+        entities,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _updateFan(index: number, field: keyof FanEntityConfig, value: string): void {
+    const entities = [...(this._config.fans?.entities ?? [])];
+    entities[index] = { ...entities[index], [field]: value };
+    
+    const newConfig = {
+      ...this._config,
+      fans: {
+        ...this._config.fans,
+        entities,
+      },
     };
     
     fireEvent(this, 'config-changed', { config: newConfig });
@@ -787,6 +835,80 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     `;
   }
 
+  private _renderFansSection() {
+    const isExpanded = this._expandedSections.has('fans');
+    const fansConfig = this._config.fans;
+    const entities = fansConfig?.entities ?? [];
+
+    return html`
+      <div class="section">
+        <div class="section-header" @click=${() => this._toggleSection('fans')}>
+          <span class="section-title">Fans (${entities.length})</span>
+          <ha-icon icon=${isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'}></ha-icon>
+        </div>
+        ${isExpanded ? html`
+          <div class="section-content">
+            <ha-textfield
+              label="Section Name"
+              .value=${fansConfig?.section_name ?? DEFAULT_FANS_CONFIG.section_name}
+              data-config-path="fans.section_name"
+              @change=${this._valueChanged}
+            ></ha-textfield>
+            
+            ${entities.map((fan, index) => html`
+              <div class="list-item">
+                <div class="list-item-header">
+                  <span class="list-item-title">Fan ${index + 1}</span>
+                  <ha-icon 
+                    class="remove-button"
+                    icon="mdi:delete"
+                    @click=${() => this._removeFan(index)}
+                  ></ha-icon>
+                </div>
+                <div class="list-item-content">
+                  <div class="form-group">
+                    <label>Switch Entity *</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['switch', 'fan'] } }}
+                      .value=${fan.entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateFan(index, 'entity', e.detail.value || '')}
+                    ></ha-selector>
+                  </div>
+                  <ha-textfield
+                    label="Name (Optional)"
+                    .value=${fan.name ?? ''}
+                    @change=${(e: Event) => this._updateFan(index, 'name', (e.target as HTMLInputElement).value)}
+                  ></ha-textfield>
+                  <ha-textfield
+                    label="Icon (Optional)"
+                    placeholder="mdi:fan"
+                    .value=${fan.icon ?? ''}
+                    @change=${(e: Event) => this._updateFan(index, 'icon', (e.target as HTMLInputElement).value)}
+                  ></ha-textfield>
+                  <div class="form-group">
+                    <label>Power Sensor (Optional)</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['sensor'], device_class: ['power'] } }}
+                      .value=${fan.power_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateFan(index, 'power_entity', e.detail.value || '')}
+                    ></ha-selector>
+                  </div>
+                </div>
+              </div>
+            `)}
+            
+            <div class="add-button" @click=${this._addFan}>
+              <ha-icon icon="mdi:plus"></ha-icon>
+              <span>Add Fan</span>
+            </div>
+          </div>
+        ` : nothing}
+      </div>
+    `;
+  }
+
   render() {
     if (!this.hass || !this._config) {
       return nothing;
@@ -799,6 +921,7 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
         ${this._renderTemperatureSensorsSection()}
         ${this._renderHouseACSection()}
         ${this._renderClimateEntitiesSection()}
+        ${this._renderFansSection()}
       </div>
     `;
   }

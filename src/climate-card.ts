@@ -19,6 +19,7 @@ import './components/forecast-section';
 import './components/temp-sensor-grid';
 import './components/house-ac-section';
 import './components/climate-section';
+import './components/fan-section';
 
 // Log card info
 console.info(
@@ -272,6 +273,19 @@ export class ClimateCard extends LitElement implements LovelaceCard {
     `;
   }
 
+  private _renderFans() {
+    if (!this._config?.fans?.entities?.length) {
+      return nothing;
+    }
+
+    return html`
+      <fan-section
+        .hass=${this.hass}
+        .config=${this._config.fans}
+      ></fan-section>
+    `;
+  }
+
   render() {
     if (!this._config) {
       return html`<ha-card>Invalid configuration</ha-card>`;
@@ -285,6 +299,7 @@ export class ClimateCard extends LitElement implements LovelaceCard {
           ${this._renderTemperatureSensors()}
           ${this._renderHouseAC()}
           ${this._renderClimateEntities()}
+          ${this._renderFans()}
         </div>
       </ha-card>
     `;

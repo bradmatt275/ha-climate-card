@@ -38,6 +38,10 @@ export const DEFAULT_HOUSE_AC_CONFIG = {
   zones_collapsed: false,
 };
 
+export const DEFAULT_FANS_CONFIG = {
+  section_name: 'FANS',
+};
+
 export const DEFAULT_ZONE_STEP = {
   temperature: 0.5,
   percentage: 5,
