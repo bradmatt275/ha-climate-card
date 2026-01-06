@@ -9,7 +9,7 @@ import {
   FanEntityConfig,
 } from './types';
 import { cssVariables } from './styles';
-import { DEFAULT_CONFIG, DEFAULT_WEATHER_CONFIG, DEFAULT_TEMPERATURE_SENSORS_CONFIG, DEFAULT_HOUSE_AC_CONFIG, DEFAULT_FANS_CONFIG } from './const';
+import { DEFAULT_CONFIG, DEFAULT_WEATHER_CONFIG, DEFAULT_TEMPERATURE_SENSORS_CONFIG, DEFAULT_HOUSE_AC_CONFIG, DEFAULT_FANS_CONFIG, DEFAULT_SECTION_ORDER, SECTION_LABELS } from './const';
 
 @customElement('climate-card-editor')
 export class ClimateCardEditor extends LitElement implements LovelaceCardEditor {
@@ -164,6 +164,64 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+    }
+    
+    .order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--card-background-color);
+      border-radius: 8px;
+      border: 1px solid var(--divider-color);
+    }
+    
+    .order-item-label {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .order-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .order-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--secondary-text-color);
+      transition: background-color 100ms ease, color 100ms ease;
+    }
+    
+    .order-button:hover {
+      background: var(--secondary-background-color);
+      color: var(--primary-color);
+    }
+    
+    .order-button.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .order-button.disabled:hover {
+      background: transparent;
+      color: var(--secondary-text-color);
+    }
+    
+    .order-button ha-icon {
+      --mdc-icon-size: 20px;
     }
   `;
 
@@ -442,6 +500,38 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     fireEvent(this, 'config-changed', { config: newConfig });
   }
 
+  private _getSectionOrder(): string[] {
+    return this._config.section_order ?? [...DEFAULT_SECTION_ORDER];
+  }
+
+  private _moveSectionUp(index: number): void {
+    if (index === 0) return;
+    
+    const order = this._getSectionOrder();
+    [order[index - 1], order[index]] = [order[index], order[index - 1]];
+    
+    const newConfig = {
+      ...this._config,
+      section_order: order,
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveSectionDown(index: number): void {
+    const order = this._getSectionOrder();
+    if (index >= order.length - 1) return;
+    
+    [order[index], order[index + 1]] = [order[index + 1], order[index]];
+    
+    const newConfig = {
+      ...this._config,
+      section_order: order,
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
   private _renderGeneralSection() {
     const isExpanded = this._expandedSections.has('general');
 
@@ -459,6 +549,45 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
               data-config-path="title"
               @change=${this._valueChanged}
             ></ha-textfield>
+          </div>
+        ` : nothing}
+      </div>
+    `;
+  }
+
+  private _renderSectionOrderSection() {
+    const isExpanded = this._expandedSections.has('section_order');
+    const order = this._getSectionOrder();
+
+    return html`
+      <div class="section">
+        <div class="section-header" @click=${() => this._toggleSection('section_order')}>
+          <span class="section-title">Section Order</span>
+          <ha-icon icon=${isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'}></ha-icon>
+        </div>
+        ${isExpanded ? html`
+          <div class="section-content">
+            <div class="order-list">
+              ${order.map((section, index) => html`
+                <div class="order-item">
+                  <span class="order-item-label">${SECTION_LABELS[section] ?? section}</span>
+                  <div class="order-buttons">
+                    <div 
+                      class="order-button ${index === 0 ? 'disabled' : ''}"
+                      @click=${() => this._moveSectionUp(index)}
+                    >
+                      <ha-icon icon="mdi:arrow-up"></ha-icon>
+                    </div>
+                    <div 
+                      class="order-button ${index === order.length - 1 ? 'disabled' : ''}"
+                      @click=${() => this._moveSectionDown(index)}
+                    >
+                      <ha-icon icon="mdi:arrow-down"></ha-icon>
+                    </div>
+                  </div>
+                </div>
+              `)}
+            </div>
           </div>
         ` : nothing}
       </div>
@@ -946,6 +1075,7 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     return html`
       <div class="editor-container">
         ${this._renderGeneralSection()}
+        ${this._renderSectionOrderSection()}
         ${this._renderWeatherSection()}
         ${this._renderTemperatureSensorsSection()}
         ${this._renderHouseACSection()}

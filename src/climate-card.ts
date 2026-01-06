@@ -291,15 +291,27 @@ export class ClimateCard extends LitElement implements LovelaceCard {
       return html`<ha-card>Invalid configuration</ha-card>`;
     }
 
+    const sectionOrder = this._config.section_order ?? [
+      'forecast',
+      'temperatures',
+      'house_ac',
+      'climate',
+      'fans',
+    ];
+
+    const sectionRenderers: Record<string, () => typeof nothing | ReturnType<typeof html>> = {
+      forecast: () => this._renderForecastSection(),
+      temperatures: () => this._renderTemperatureSensors(),
+      house_ac: () => this._renderHouseAC(),
+      climate: () => this._renderClimateEntities(),
+      fans: () => this._renderFans(),
+    };
+
     return html`
       <ha-card>
         <div class="card-content">
           ${this._renderWeatherHeader()}
-          ${this._renderForecastSection()}
-          ${this._renderTemperatureSensors()}
-          ${this._renderHouseAC()}
-          ${this._renderClimateEntities()}
-          ${this._renderFans()}
+          ${sectionOrder.map(section => sectionRenderers[section]?.())}
         </div>
       </ha-card>
     `;

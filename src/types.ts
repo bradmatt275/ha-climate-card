@@ -7,6 +7,7 @@ import { HomeAssistant, LovelaceCardConfig } from 'custom-card-helpers';
 export interface ClimateCardConfig extends LovelaceCardConfig {
   type: string;
   title?: string;
+  section_order?: string[];
   weather?: WeatherConfig;
   temperature_sensors?: TemperatureSensorsConfig;
   house_ac?: HouseACConfig;

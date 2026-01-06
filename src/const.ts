@@ -42,6 +42,22 @@ export const DEFAULT_FANS_CONFIG = {
   section_name: 'FANS',
 };
 
+export const DEFAULT_SECTION_ORDER = [
+  'forecast',
+  'temperatures',
+  'house_ac',
+  'climate',
+  'fans',
+];
+
+export const SECTION_LABELS: Record<string, string> = {
+  forecast: 'Forecast',
+  temperatures: 'Temperature Sensors',
+  house_ac: 'House AC',
+  climate: 'Climate Entities',
+  fans: 'Fans',
+};
+
 export const DEFAULT_ZONE_STEP = {
   temperature: 0.5,
   percentage: 5,
