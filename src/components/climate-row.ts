@@ -212,7 +212,8 @@ export class ClimateRow extends LitElement {
     const attrs = this._getEntity();
     // HA doesn't include 'off' in hvac_modes, so we add it manually
     const hvacModes = attrs?.hvac_modes ?? [];
-    const allModes = hvacModes.includes('off') ? hvacModes : [...hvacModes, 'off'];
+    const hasOff = hvacModes.some(m => m.toLowerCase() === 'off');
+    const allModes = hasOff ? hvacModes : [...hvacModes, 'off'];
     
     const normalizedMode = normalizeMode(state);
     const modeColors = getModeColors(normalizedMode);
