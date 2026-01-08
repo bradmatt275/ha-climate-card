@@ -39,16 +39,6 @@ export async function fetchHistory(
       significant_changes_only: false,
     });
 
-    // Debug: log raw response
-    console.debug(`[climate-card] History for ${entityId}:`, {
-      requestedHours: hours,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      rawDataLength: history[entityId]?.length ?? 0,
-      firstItem: history[entityId]?.[0],
-      lastItem: history[entityId]?.[history[entityId]?.length - 1],
-    });
-
     const data = processHistoryData(history, entityId);
     
     // Cache the result
@@ -101,28 +91,6 @@ function processHistoryData(
     
   // Sort by time to ensure chronological order
   points.sort((a, b) => a.time.getTime() - b.time.getTime());
-  
-  // Debug: log processed data with full min/max info
-  if (points.length > 0) {
-    const values = points.map(p => p.value);
-    const minVal = Math.min(...values);
-    const maxVal = Math.max(...values);
-    const minIdx = values.indexOf(minVal);
-    const maxIdx = values.indexOf(maxVal);
-    
-    console.debug(`[climate-card] Processed ${entityId}:`, 
-      `${points.length} points,`,
-      `range: ${minVal.toFixed(1)}°C - ${maxVal.toFixed(1)}°C,`,
-      `min at index ${minIdx} (${points[minIdx]?.time.toISOString()}),`,
-      `max at index ${maxIdx} (${points[maxIdx]?.time.toISOString()})`
-    );
-    
-    // Log every 10th point to see the trend
-    const samplePoints = points.filter((_, i) => i % Math.ceil(points.length / 10) === 0 || i === points.length - 1);
-    console.debug(`[climate-card] Sample points for ${entityId}:`, 
-      samplePoints.map(p => `${p.time.toTimeString().slice(0,5)}=${p.value.toFixed(1)}`).join(', ')
-    );
-  }
   
   return points;
 }
