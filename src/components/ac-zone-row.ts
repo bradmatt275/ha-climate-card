@@ -2,7 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { HomeAssistant } from 'custom-card-helpers';
-import { ACZoneConfig } from '../types';
+import { ACZoneConfig, SelectEntityAttributes } from '../types';
 import { cssVariables, rowStyles, buttonStyles, typographyStyles } from '../styles';
 import { formatTemperature, formatPercentage } from '../utils/format';
 
@@ -95,6 +95,28 @@ export class ACZoneRow extends LitElement {
       align-items: center;
       gap: 4px;
     }
+    
+    .zone-mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--secondary-background-color);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 100ms ease;
+    }
+    
+    .zone-mode-toggle:hover {
+      background: var(--divider-color);
+    }
+    
+    .zone-mode-toggle ha-icon {
+      --mdc-icon-size: 14px;
+      color: var(--secondary-text-color);
+    }
   `;
 
   private _isPoweredOn(): boolean {
@@ -126,6 +148,34 @@ export class ACZoneRow extends LitElement {
     if (!this.config?.control_mode_entity) return null;
     const entity = this.hass?.states[this.config.control_mode_entity];
     return entity?.state ?? null;
+  }
+
+  private _getControlModeOptions(): string[] {
+    if (!this.config?.control_mode_entity) return [];
+    const entity = this.hass?.states[this.config.control_mode_entity];
+    const attrs = entity?.attributes as SelectEntityAttributes | undefined;
+    return attrs?.options ?? [];
+  }
+
+  private async _toggleControlMode(): Promise<void> {
+    if (!this.config?.control_mode_entity) return;
+    
+    const currentMode = this._getControlMode();
+    const options = this._getControlModeOptions();
+    
+    if (options.length < 2 || !currentMode) return;
+    
+    // Find current index and get next option
+    const currentIndex = options.findIndex(
+      opt => opt.toLowerCase() === currentMode.toLowerCase()
+    );
+    const nextIndex = (currentIndex + 1) % options.length;
+    const nextOption = options[nextIndex];
+    
+    await this.hass.callService('select', 'select_option', {
+      entity_id: this.config.control_mode_entity,
+      option: nextOption,
+    });
   }
 
   private async _togglePower(): Promise<void> {
@@ -192,6 +242,8 @@ export class ACZoneRow extends LitElement {
     const temperature = this._getTemperature();
     const setpoint = this._getSetpoint();
     const controlMode = this._getControlMode();
+    const controlModeOptions = this._getControlModeOptions();
+    const canToggleMode = controlModeOptions.length > 1;
     const icon = this.config?.icon ?? 'mdi:air-conditioner';
     // Show controls if we have button entities for up/down
     const hasSetpointControl = !!this.config?.setpoint_up_entity && !!this.config?.setpoint_down_entity;
@@ -221,7 +273,18 @@ export class ACZoneRow extends LitElement {
             ${temperature !== null ? html`
               <span class="zone-temp">${formatTemperature(temperature, 1)}</span>
             ` : nothing}
-            ${controlMode ? html`
+            ${controlMode && canToggleMode ? html`
+              <span 
+                class="zone-mode-toggle"
+                @click=${this._toggleControlMode}
+                role="button"
+                tabindex="0"
+                aria-label="Toggle control mode"
+              >
+                ${controlMode}
+                <ha-icon icon="mdi:swap-horizontal"></ha-icon>
+              </span>
+            ` : controlMode ? html`
               <span>${controlMode}</span>
             ` : nothing}
           </div>
