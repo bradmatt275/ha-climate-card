@@ -178,9 +178,10 @@ export class ACMasterRow extends LitElement {
   }
 
   private _handleRowClick(e: Event): void {
-    // Don't toggle if clicking on dropdowns
+    // Don't toggle if clicking on dropdowns or their options
     const target = e.target as HTMLElement;
-    if (target.closest('.dropdown-wrapper') || target.closest('.dropdown')) {
+    if (target.closest('.dropdown-wrapper') || target.closest('.dropdown') || 
+        target.closest('.dropdown-menu') || target.closest('.dropdown-option')) {
       return;
     }
     this._togglePower();
