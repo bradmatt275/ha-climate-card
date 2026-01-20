@@ -131,14 +131,13 @@ export class ClimateCard extends LitElement implements LovelaceCard {
   }
 
   willUpdate(changedProps: PropertyValues): void {
-    if (changedProps.has('_config') || changedProps.has('hass')) {
+    if (changedProps.has('_config')) {
       const oldConfig = changedProps.get('_config') as ClimateCardConfig | undefined;
-      const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
 
-      // Re-subscribe if weather entity changed
+      // Re-subscribe only if weather entity changed in config
       if (
         this._config?.weather?.entity &&
-        (oldConfig?.weather?.entity !== this._config.weather.entity || !oldHass)
+        oldConfig?.weather?.entity !== this._config.weather.entity
       ) {
         this._subscribeForecast();
       }
