@@ -223,6 +223,43 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     .order-button ha-icon {
       --mdc-icon-size: 20px;
     }
+    
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .action-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--secondary-text-color);
+      transition: background-color 100ms ease, color 100ms ease;
+    }
+    
+    .action-button:hover {
+      background: var(--secondary-background-color);
+      color: var(--primary-color);
+    }
+    
+    .action-button.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .action-button.disabled:hover {
+      background: transparent;
+      color: var(--secondary-text-color);
+    }
+    
+    .action-button ha-icon {
+      --mdc-icon-size: 18px;
+    }
   `;
 
   public setConfig(config: ClimateCardConfig): void {
@@ -325,6 +362,40 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     fireEvent(this, 'config-changed', { config: newConfig });
   }
 
+  private _moveSensorUp(index: number): void {
+    if (index === 0) return;
+    
+    const sensors = [...(this._config.temperature_sensors?.sensors ?? [])];
+    [sensors[index - 1], sensors[index]] = [sensors[index], sensors[index - 1]];
+    
+    const newConfig = {
+      ...this._config,
+      temperature_sensors: {
+        ...this._config.temperature_sensors,
+        sensors,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveSensorDown(index: number): void {
+    const sensors = [...(this._config.temperature_sensors?.sensors ?? [])];
+    if (index >= sensors.length - 1) return;
+    
+    [sensors[index], sensors[index + 1]] = [sensors[index + 1], sensors[index]];
+    
+    const newConfig = {
+      ...this._config,
+      temperature_sensors: {
+        ...this._config.temperature_sensors,
+        sensors,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
   private _updateSensor(index: number, field: keyof TemperatureSensorConfig, value: string): void {
     const sensors = [...(this._config.temperature_sensors?.sensors ?? [])];
     sensors[index] = { ...sensors[index], [field]: value };
@@ -415,6 +486,44 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
     fireEvent(this, 'config-changed', { config: newConfig });
   }
 
+  private _moveZoneUp(index: number): void {
+    if (index === 0) return;
+    
+    const zones = [...(this._config.house_ac?.zones ?? [])];
+    [zones[index - 1], zones[index]] = [zones[index], zones[index - 1]];
+    
+    const newConfig = {
+      ...this._config,
+      house_ac: {
+        ...this._config.house_ac,
+        mode_entity: this._config.house_ac?.mode_entity ?? '',
+        fan_entity: this._config.house_ac?.fan_entity ?? '',
+        zones,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveZoneDown(index: number): void {
+    const zones = [...(this._config.house_ac?.zones ?? [])];
+    if (index >= zones.length - 1) return;
+    
+    [zones[index], zones[index + 1]] = [zones[index + 1], zones[index]];
+    
+    const newConfig = {
+      ...this._config,
+      house_ac: {
+        ...this._config.house_ac,
+        mode_entity: this._config.house_ac?.mode_entity ?? '',
+        fan_entity: this._config.house_ac?.fan_entity ?? '',
+        zones,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
   private _addClimateEntity(): void {
     const entities = [...(this._config.climate_entities ?? [])];
     entities.push({
@@ -444,6 +553,34 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
   private _updateClimateEntity(index: number, field: keyof ClimateEntityConfig, value: string): void {
     const entities = [...(this._config.climate_entities ?? [])];
     entities[index] = { ...entities[index], [field]: value };
+    
+    const newConfig = {
+      ...this._config,
+      climate_entities: entities,
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveClimateEntityUp(index: number): void {
+    if (index === 0) return;
+    
+    const entities = [...(this._config.climate_entities ?? [])];
+    [entities[index - 1], entities[index]] = [entities[index], entities[index - 1]];
+    
+    const newConfig = {
+      ...this._config,
+      climate_entities: entities,
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveClimateEntityDown(index: number): void {
+    const entities = [...(this._config.climate_entities ?? [])];
+    if (index >= entities.length - 1) return;
+    
+    [entities[index], entities[index + 1]] = [entities[index + 1], entities[index]];
     
     const newConfig = {
       ...this._config,
@@ -488,6 +625,40 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
   private _updateFan(index: number, field: keyof FanEntityConfig, value: string): void {
     const entities = [...(this._config.fans?.entities ?? [])];
     entities[index] = { ...entities[index], [field]: value };
+    
+    const newConfig = {
+      ...this._config,
+      fans: {
+        ...this._config.fans,
+        entities,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveFanUp(index: number): void {
+    if (index === 0) return;
+    
+    const entities = [...(this._config.fans?.entities ?? [])];
+    [entities[index - 1], entities[index]] = [entities[index], entities[index - 1]];
+    
+    const newConfig = {
+      ...this._config,
+      fans: {
+        ...this._config.fans,
+        entities,
+      },
+    };
+    
+    fireEvent(this, 'config-changed', { config: newConfig });
+  }
+
+  private _moveFanDown(index: number): void {
+    const entities = [...(this._config.fans?.entities ?? [])];
+    if (index >= entities.length - 1) return;
+    
+    [entities[index], entities[index + 1]] = [entities[index + 1], entities[index]];
     
     const newConfig = {
       ...this._config,
@@ -735,12 +906,29 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
             ${sensors.map((sensor, index) => html`
               <div class="list-item">
                 <div class="list-item-header">
-                  <span class="list-item-title">Sensor ${index + 1}</span>
-                  <ha-icon 
-                    class="remove-button"
-                    icon="mdi:delete"
-                    @click=${() => this._removeSensor(index)}
-                  ></ha-icon>
+                  <span class="list-item-title">Sensor ${index + 1}${sensor.name ? `: ${sensor.name}` : ''}</span>
+                  <div class="item-actions">
+                    <div 
+                      class="action-button ${index === 0 ? 'disabled' : ''}"
+                      @click=${() => this._moveSensorUp(index)}
+                      title="Move up"
+                    >
+                      <ha-icon icon="mdi:arrow-up"></ha-icon>
+                    </div>
+                    <div 
+                      class="action-button ${index === sensors.length - 1 ? 'disabled' : ''}"
+                      @click=${() => this._moveSensorDown(index)}
+                      title="Move down"
+                    >
+                      <ha-icon icon="mdi:arrow-down"></ha-icon>
+                    </div>
+                    <ha-icon 
+                      class="remove-button"
+                      icon="mdi:delete"
+                      @click=${() => this._removeSensor(index)}
+                      title="Remove sensor"
+                    ></ha-icon>
+                  </div>
                 </div>
                 <div class="list-item-content">
                   <ha-textfield
@@ -854,11 +1042,28 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
               <div class="list-item">
                 <div class="list-item-header">
                   <span class="list-item-title">Zone ${index + 1}: ${zone.name}</span>
-                  <ha-icon 
-                    class="remove-button"
-                    icon="mdi:delete"
-                    @click=${() => this._removeZone(index)}
-                  ></ha-icon>
+                  <div class="item-actions">
+                    <div 
+                      class="action-button ${index === 0 ? 'disabled' : ''}"
+                      @click=${() => this._moveZoneUp(index)}
+                      title="Move up"
+                    >
+                      <ha-icon icon="mdi:arrow-up"></ha-icon>
+                    </div>
+                    <div 
+                      class="action-button ${index === zones.length - 1 ? 'disabled' : ''}"
+                      @click=${() => this._moveZoneDown(index)}
+                      title="Move down"
+                    >
+                      <ha-icon icon="mdi:arrow-down"></ha-icon>
+                    </div>
+                    <ha-icon 
+                      class="remove-button"
+                      icon="mdi:delete"
+                      @click=${() => this._removeZone(index)}
+                      title="Remove zone"
+                    ></ha-icon>
+                  </div>
                 </div>
                 <div class="list-item-content">
                   <ha-textfield
@@ -952,12 +1157,29 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
             ${entities.map((entity, index) => html`
               <div class="list-item">
                 <div class="list-item-header">
-                  <span class="list-item-title">Entity ${index + 1}</span>
-                  <ha-icon 
-                    class="remove-button"
-                    icon="mdi:delete"
-                    @click=${() => this._removeClimateEntity(index)}
-                  ></ha-icon>
+                  <span class="list-item-title">Entity ${index + 1}${entity.name ? `: ${entity.name}` : ''}</span>
+                  <div class="item-actions">
+                    <div 
+                      class="action-button ${index === 0 ? 'disabled' : ''}"
+                      @click=${() => this._moveClimateEntityUp(index)}
+                      title="Move up"
+                    >
+                      <ha-icon icon="mdi:arrow-up"></ha-icon>
+                    </div>
+                    <div 
+                      class="action-button ${index === entities.length - 1 ? 'disabled' : ''}"
+                      @click=${() => this._moveClimateEntityDown(index)}
+                      title="Move down"
+                    >
+                      <ha-icon icon="mdi:arrow-down"></ha-icon>
+                    </div>
+                    <ha-icon 
+                      class="remove-button"
+                      icon="mdi:delete"
+                      @click=${() => this._removeClimateEntity(index)}
+                      title="Remove entity"
+                    ></ha-icon>
+                  </div>
                 </div>
                 <div class="list-item-content">
                   <div class="form-group">
@@ -1013,43 +1235,54 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
               @change=${this._valueChanged}
             ></ha-textfield>
             
-            ${entities.map((fan, index) => html`
+            ${entities.map((entity, index) => html`
               <div class="list-item">
                 <div class="list-item-header">
-                  <span class="list-item-title">Fan ${index + 1}</span>
-                  <ha-icon 
-                    class="remove-button"
-                    icon="mdi:delete"
-                    @click=${() => this._removeFan(index)}
-                  ></ha-icon>
+                  <span class="list-item-title">Fan ${index + 1}${entity.name ? `: ${entity.name}` : ''}</span>
+                  <div class="item-actions">
+                    <div 
+                      class="action-button ${index === 0 ? 'disabled' : ''}"
+                      @click=${() => this._moveFanUp(index)}
+                      title="Move up"
+                    >
+                      <ha-icon icon="mdi:arrow-up"></ha-icon>
+                    </div>
+                    <div 
+                      class="action-button ${index === entities.length - 1 ? 'disabled' : ''}"
+                      @click=${() => this._moveFanDown(index)}
+                      title="Move down"
+                    >
+                      <ha-icon icon="mdi:arrow-down"></ha-icon>
+                    </div>
+                    <ha-icon 
+                      class="remove-button"
+                      icon="mdi:delete"
+                      @click=${() => this._removeFan(index)}
+                      title="Remove fan"
+                    ></ha-icon>
+                  </div>
                 </div>
                 <div class="list-item-content">
+                  <ha-textfield
+                    label="Name (Optional)"
+                    .value=${entity.name ?? ''}
+                    @change=${(e: Event) => this._updateFan(index, 'name', (e.target as HTMLInputElement).value)}
+                  ></ha-textfield>
                   <div class="form-group">
-                    <label>Switch Entity *</label>
+                    <label>Entity (Switch or Fan)</label>
                     <ha-selector
                       .hass=${this.hass}
                       .selector=${{ entity: { domain: ['switch', 'fan'] } }}
-                      .value=${fan.entity ?? ''}
+                      .value=${entity.entity ?? ''}
                       @value-changed=${(e: CustomEvent) => this._updateFan(index, 'entity', e.detail.value || '')}
                     ></ha-selector>
                   </div>
-                  <ha-textfield
-                    label="Name (Optional)"
-                    .value=${fan.name ?? ''}
-                    @change=${(e: Event) => this._updateFan(index, 'name', (e.target as HTMLInputElement).value)}
-                  ></ha-textfield>
-                  <ha-textfield
-                    label="Icon (Optional)"
-                    placeholder="mdi:fan"
-                    .value=${fan.icon ?? ''}
-                    @change=${(e: Event) => this._updateFan(index, 'icon', (e.target as HTMLInputElement).value)}
-                  ></ha-textfield>
                   <div class="form-group">
-                    <label>Power Sensor (Optional)</label>
+                    <label>Power Entity (Optional)</label>
                     <ha-selector
                       .hass=${this.hass}
-                      .selector=${{ entity: { domain: ['sensor'], device_class: ['power'] } }}
-                      .value=${fan.power_entity ?? ''}
+                      .selector=${{ entity: { domain: ['sensor'] } }}
+                      .value=${entity.power_entity ?? ''}
                       @value-changed=${(e: CustomEvent) => this._updateFan(index, 'power_entity', e.detail.value || '')}
                     ></ha-selector>
                   </div>
@@ -1083,11 +1316,5 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
         ${this._renderFansSection()}
       </div>
     `;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'climate-card-editor': ClimateCardEditor;
   }
 }
