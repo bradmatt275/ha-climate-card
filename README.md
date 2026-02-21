@@ -193,7 +193,7 @@ You can reorder these or omit sections you don't use. This can also be configure
 | `dewpoint_entity` | string | - | Optional dewpoint sensor |
 | `icon` | string | - | Optional MDI icon |
 
-When both `humidity_entity` and `dewpoint_entity` are configured, a comfort level badge is automatically displayed based on the dewpoint value:
+A comfort level badge is automatically displayed when a dewpoint value is available. If a `dewpoint_entity` is configured, its value is used directly. Otherwise, when both `temperature_entity` and `humidity_entity` are available, the dewpoint is calculated automatically using the Magnus formula. The comfort scale:
 
 | Dewpoint | Comfort Level |
 |----------|---------------|

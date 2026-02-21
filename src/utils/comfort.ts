@@ -5,6 +5,17 @@ export interface ComfortInfo {
 }
 
 /**
+ * Calculate dewpoint from temperature (°C) and relative humidity (%)
+ * using the Magnus formula.
+ */
+export function calculateDewpoint(temperature: number, humidity: number): number {
+  const b = 17.67;
+  const c = 243.5;
+  const gamma = Math.log(humidity / 100) + (b * temperature) / (c + temperature);
+  return (c * gamma) / (b - gamma);
+}
+
+/**
  * Get the comfort level based on dewpoint temperature.
  * Dewpoint is the best single metric for humidity comfort as it
  * captures the absolute moisture content of the air.

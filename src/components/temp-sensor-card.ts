@@ -6,7 +6,7 @@ import { cssVariables, sensorCardStyles, typographyStyles } from '../styles';
 import { getTemperatureColor, getTemperatureColorHex } from '../utils/temperature-color';
 import { formatTemperature, formatHumidity, parseStateNumber } from '../utils/format';
 import { fetchHistory, downsampleHistory } from '../utils/history';
-import { getComfortLevel } from '../utils/comfort';
+import { getComfortLevel, calculateDewpoint } from '../utils/comfort';
 
 import './sparkline';
 
@@ -90,7 +90,10 @@ export class TempSensorCard extends LitElement {
   render() {
     const temperature = this._getTemperature();
     const humidity = this._getHumidity();
-    const dewpoint = this._getDewpoint();
+    const dewpointEntity = this._getDewpoint();
+    // Use dewpoint entity if available, otherwise calculate from temp + humidity
+    const dewpoint = dewpointEntity
+      ?? (temperature != null && humidity != null ? calculateDewpoint(temperature, humidity) : null);
     
     const tempColor = temperature != null 
       ? getTemperatureColor(temperature, this.thresholds) 
@@ -138,7 +141,7 @@ export class TempSensorCard extends LitElement {
                 ${formatTemperature(dewpoint, 1)}
               </span>
             ` : nothing}
-            ${humidity != null && dewpoint != null ? (() => {
+            ${dewpoint != null ? (() => {
               const comfort = getComfortLevel(dewpoint);
               return html`
                 <span class="sensor-comfort" style="color: ${comfort.color}">
