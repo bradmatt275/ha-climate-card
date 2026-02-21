@@ -92,9 +92,11 @@ temperature_sensors:
     - name: Living Room
       temperature_entity: sensor.living_room_temperature
       humidity_entity: sensor.living_room_humidity
+      dewpoint_entity: sensor.living_room_dewpoint
     - name: Bedroom
       temperature_entity: sensor.bedroom_temperature
       humidity_entity: sensor.bedroom_humidity
+      dewpoint_entity: sensor.bedroom_dewpoint
 
 house_ac:
   name: AC
@@ -188,7 +190,19 @@ You can reorder these or omit sections you don't use. This can also be configure
 | `name` | string | **Required** | Display name |
 | `temperature_entity` | string | **Required** | Temperature sensor entity |
 | `humidity_entity` | string | - | Optional humidity sensor |
+| `dewpoint_entity` | string | - | Optional dewpoint sensor |
 | `icon` | string | - | Optional MDI icon |
+
+When both `humidity_entity` and `dewpoint_entity` are configured, a comfort level badge is automatically displayed based on the dewpoint value:
+
+| Dewpoint | Comfort Level |
+|----------|---------------|
+| < 10°C | Dry |
+| 10–13°C | Pleasant |
+| 13–16°C | Comfortable |
+| 16–18°C | Slightly Humid |
+| 18–21°C | Humid |
+| > 21°C | Oppressive |
 
 ### House AC
 
