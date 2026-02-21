@@ -517,6 +517,22 @@ export const sensorCardStyles = css`
     color: var(--info-color, #039BE5);
   }
 
+  .sensor-comfort {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px 2px 4px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.15);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .sensor-comfort ha-icon {
+    --mdc-icon-size: 14px;
+  }
+
   .sensor-sparkline {
     position: absolute;
     bottom: 0;
