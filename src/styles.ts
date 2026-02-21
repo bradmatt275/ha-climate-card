@@ -471,7 +471,8 @@ export const sensorCardStyles = css`
   .sensor-values {
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 4px 8px;
     margin-top: 4px;
   }
   
