@@ -499,7 +499,24 @@ export const sensorCardStyles = css`
     --mdc-icon-size: 14px;
     color: var(--weather-rain);
   }
-  
+
+  .sensor-dewpoint {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--paper-font-common-code_-_font-family, 'Roboto Mono', monospace);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .sensor-dewpoint ha-icon {
+    --mdc-icon-size: 14px;
+    color: var(--info-color, #039BE5);
+  }
+
   .sensor-sparkline {
     position: absolute;
     bottom: 0;

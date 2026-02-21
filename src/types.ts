@@ -55,6 +55,7 @@ export interface TemperatureSensorConfig {
   name: string;
   temperature_entity: string;
   humidity_entity?: string;
+  dewpoint_entity?: string;
   icon?: string;
 }
 

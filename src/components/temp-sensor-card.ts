@@ -80,9 +80,16 @@ export class TempSensorCard extends LitElement {
     return parseStateNumber(entity?.state) ?? null;
   }
 
+  private _getDewpoint(): number | null {
+    if (!this.config?.dewpoint_entity) return null;
+    const entity = this.hass?.states[this.config.dewpoint_entity];
+    return parseStateNumber(entity?.state) ?? null;
+  }
+
   render() {
     const temperature = this._getTemperature();
     const humidity = this._getHumidity();
+    const dewpoint = this._getDewpoint();
     
     const tempColor = temperature != null 
       ? getTemperatureColor(temperature, this.thresholds) 
@@ -122,6 +129,12 @@ export class TempSensorCard extends LitElement {
               <span class="sensor-humidity">
                 <ha-icon icon="mdi:water-percent"></ha-icon>
                 ${formatHumidity(humidity, 1)}
+              </span>
+            ` : nothing}
+            ${dewpoint != null ? html`
+              <span class="sensor-dewpoint">
+                <ha-icon icon="mdi:thermometer-water"></ha-icon>
+                ${formatTemperature(dewpoint, 1)}
               </span>
             ` : nothing}
           </div>

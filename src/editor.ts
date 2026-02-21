@@ -954,6 +954,15 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
                       @value-changed=${(e: CustomEvent) => this._updateSensor(index, 'humidity_entity', e.detail.value || '')}
                     ></ha-selector>
                   </div>
+                  <div class="form-group">
+                    <label>Dewpoint Entity (Optional)</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{ entity: { domain: ['sensor'] } }}
+                      .value=${sensor.dewpoint_entity ?? ''}
+                      @value-changed=${(e: CustomEvent) => this._updateSensor(index, 'dewpoint_entity', e.detail.value || '')}
+                    ></ha-selector>
+                  </div>
                 </div>
               </div>
             `)}
