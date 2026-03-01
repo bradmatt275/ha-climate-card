@@ -91,9 +91,14 @@ export class TempSensorCard extends LitElement {
     const temperature = this._getTemperature();
     const humidity = this._getHumidity();
     const dewpointEntity = this._getDewpoint();
-    // Use dewpoint entity if available, otherwise calculate from temp + humidity
+    // Display: prefer the entity value, fall back to calculated
     const dewpoint = dewpointEntity
       ?? (temperature != null && humidity != null ? calculateDewpoint(temperature, humidity) : null);
+    // Comfort: always calculate from displayed temp + humidity so the label
+    // reflects the values the user sees, not a potentially mismatched sensor
+    const comfortDewpoint = (temperature != null && humidity != null)
+      ? calculateDewpoint(temperature, humidity)
+      : dewpoint;
     
     const tempColor = temperature != null 
       ? getTemperatureColor(temperature, this.thresholds) 
@@ -141,8 +146,8 @@ export class TempSensorCard extends LitElement {
                 ${formatTemperature(dewpoint, 1)}
               </span>
             ` : nothing}
-            ${dewpoint != null ? (() => {
-              const comfort = getComfortLevel(dewpoint);
+            ${comfortDewpoint != null ? (() => {
+              const comfort = getComfortLevel(comfortDewpoint);
               return html`
                 <span class="sensor-comfort" style="color: ${comfort.color}">
                   <ha-icon icon="${comfort.icon}"></ha-icon>
