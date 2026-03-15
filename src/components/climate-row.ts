@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { HomeAssistant, fireEvent } from 'custom-card-helpers';
+import { HomeAssistant, fireEvent, forwardHaptic } from 'custom-card-helpers';
 import { ClimateEntityConfig, ClimateEntityAttributes } from '../types';
 import { cssVariables, rowStyles, dropdownStyles, buttonStyles, typographyStyles } from '../styles';
 import { getModeColors, getModeIcon, getModeClass, getModeLabel, normalizeMode } from '../utils/mode-colors';
@@ -173,6 +173,7 @@ export class ClimateRow extends LitElement {
 
   private async _selectMode(mode: string): Promise<void> {
     this._modeDropdownOpen = false;
+    forwardHaptic('selection');
     
     await this.hass.callService('climate', 'set_hvac_mode', {
       entity_id: this.config.entity,

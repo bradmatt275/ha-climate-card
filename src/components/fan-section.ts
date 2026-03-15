@@ -1,6 +1,6 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant, forwardHaptic } from 'custom-card-helpers';
 import { FansConfig, FanEntityConfig } from '../types';
 import { cssVariables, sectionStyles, typographyStyles, rowStyles, buttonStyles } from '../styles';
 import { getFriendlyName } from '../utils/format';
@@ -154,6 +154,7 @@ export class FanSection extends LitElement {
   }
 
   private async _toggleFan(entityId: string): Promise<void> {
+    forwardHaptic('light');
     await this.hass.callService('switch', 'toggle', {
       entity_id: entityId,
     });

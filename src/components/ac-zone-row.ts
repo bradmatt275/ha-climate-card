@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant, forwardHaptic } from 'custom-card-helpers';
 import { ACZoneConfig, SelectEntityAttributes } from '../types';
 import { cssVariables, rowStyles, buttonStyles, typographyStyles } from '../styles';
 import { formatTemperature, formatPercentage } from '../utils/format';
@@ -164,6 +164,7 @@ export class ACZoneRow extends LitElement {
     const options = this._getControlModeOptions();
     
     if (options.length < 2 || !currentMode) return;
+    forwardHaptic('selection');
     
     // Find current index and get next option
     const currentIndex = options.findIndex(
@@ -180,6 +181,7 @@ export class ACZoneRow extends LitElement {
 
   private async _togglePower(): Promise<void> {
     if (!this.config?.power_entity) return;
+    forwardHaptic('light');
     
     await this.hass.callService('switch', 'toggle', {
       entity_id: this.config.power_entity,

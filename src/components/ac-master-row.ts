@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant, forwardHaptic } from 'custom-card-helpers';
 import { SelectEntityAttributes } from '../types';
 import { cssVariables, rowStyles, dropdownStyles, typographyStyles } from '../styles';
 import { getModeColors, getModeIcon, getModeClass, getModeLabel, normalizeMode } from '../utils/mode-colors';
@@ -153,6 +153,7 @@ export class ACMasterRow extends LitElement {
 
   private async _selectMode(option: string): Promise<void> {
     this._modeDropdownOpen = false;
+    forwardHaptic('selection');
     
     await this.hass.callService('select', 'select_option', {
       entity_id: this.modeEntity,
@@ -162,6 +163,7 @@ export class ACMasterRow extends LitElement {
 
   private async _selectFan(option: string): Promise<void> {
     this._fanDropdownOpen = false;
+    forwardHaptic('selection');
     
     await this.hass.callService('select', 'select_option', {
       entity_id: this.fanEntity,
@@ -171,6 +173,7 @@ export class ACMasterRow extends LitElement {
 
   private async _togglePower(): Promise<void> {
     if (!this.powerEntity) return;
+    forwardHaptic('light');
     
     await this.hass.callService('switch', 'toggle', {
       entity_id: this.powerEntity,

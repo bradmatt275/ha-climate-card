@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { forwardHaptic } from 'custom-card-helpers';
 import { buttonStyles, cssVariables } from '../styles';
 
 @customElement('control-button')
@@ -16,6 +17,7 @@ export class ControlButton extends LitElement {
   private _handleClick(e: Event): void {
     e.stopPropagation();
     if (!this.disabled) {
+      forwardHaptic('light');
       this.dispatchEvent(new CustomEvent('button-click', {
         bubbles: true,
         composed: true,
