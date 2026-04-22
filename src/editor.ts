@@ -796,6 +796,20 @@ export class ClimateCardEditor extends LitElement implements LovelaceCardEditor 
               data-config-path="weather.forecast_days"
               @change=${this._valueChanged}
             ></ha-textfield>
+
+            <div class="form-group">
+              <label>Display Mode</label>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ select: { options: [
+                  { value: 'auto', label: 'Auto (match forecast type)' },
+                  { value: 'daily', label: 'Daily (aggregate hourly → daily)' },
+                  { value: 'hourly', label: 'Hourly' },
+                ] } }}
+                .value=${weather?.display_mode ?? 'auto'}
+                @value-changed=${(e: CustomEvent) => this._updateConfigValue('weather.display_mode', e.detail.value)}
+              ></ha-selector>
+            </div>
             
             <div class="checkbox-row">
               <ha-switch

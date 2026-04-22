@@ -31,6 +31,7 @@ export interface WeatherConfig {
   entity: string;
   forecast_days?: number;
   forecast_type?: 'daily' | 'hourly' | 'twice_daily';
+  display_mode?: 'auto' | 'daily' | 'hourly';
   show_humidity?: boolean;
   collapsible?: boolean;
   collapsed?: boolean;

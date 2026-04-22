@@ -200,6 +200,30 @@ export class ForecastSection extends LitElement {
     `;
   }
 
+  private _aggregateHourlyToDaily(entries: WeatherForecast[]): WeatherForecast[] {
+    const byDay = new Map<string, WeatherForecast[]>();
+    for (const entry of entries) {
+      const day = entry.datetime.substring(0, 10);
+      if (!byDay.has(day)) byDay.set(day, []);
+      byDay.get(day)!.push(entry);
+    }
+
+    return Array.from(byDay.entries()).map(([day, dayEntries]) => {
+      const temps = dayEntries.map(e => e.temperature);
+      const high = Math.max(...temps);
+      const low = Math.min(...temps);
+
+      // Use the entry closest to noon for the representative condition
+      const midday = dayEntries.reduce((best, e) => {
+        const hour = new Date(e.datetime).getHours();
+        const bestHour = new Date(best.datetime).getHours();
+        return Math.abs(hour - 12) < Math.abs(bestHour - 12) ? e : best;
+      });
+
+      return { ...midday, datetime: `${day}T00:00:00`, temperature: high, templow: low };
+    });
+  }
+
   private _renderHourlyForecast(entries: WeatherForecast[]) {
     // Group entries by calendar date to insert day-boundary labels
     let currentDay = '';
@@ -227,12 +251,23 @@ export class ForecastSection extends LitElement {
 
   render() {
     const collapsible = this.config?.collapsible ?? DEFAULT_WEATHER_CONFIG.collapsible;
+    const displayMode = this.config?.display_mode ?? 'auto';
 
-    // For hourly forecasts, show all entries unless the user has explicitly set forecast_days.
-    // For daily forecasts, apply the forecast_days cap as before.
-    const displayForecast = (this.forecastType === 'hourly' && this.config?.forecast_days == null)
-      ? this.forecast
-      : this.forecast.slice(0, this.config?.forecast_days ?? DEFAULT_WEATHER_CONFIG.forecast_days);
+    // Determine the effective display type and process forecast data accordingly
+    const shouldAggregate = displayMode === 'daily' && this.forecastType === 'hourly';
+    const effectiveType: 'daily' | 'hourly' = shouldAggregate
+      ? 'daily'
+      : (displayMode === 'hourly' ? 'hourly' : this.forecastType);
+
+    const processed = shouldAggregate
+      ? this._aggregateHourlyToDaily(this.forecast)
+      : this.forecast;
+
+    // Apply forecast_days cap: for hourly auto-mode show all unless explicitly set;
+    // for daily (including aggregated) always apply the cap.
+    const displayForecast = (effectiveType === 'hourly' && this.config?.forecast_days == null)
+      ? processed
+      : processed.slice(0, this.config?.forecast_days ?? DEFAULT_WEATHER_CONFIG.forecast_days);
     const hasCurrentWeather = this._getCurrentWeather() != null;
 
     if (displayForecast.length === 0 && !hasCurrentWeather) {
@@ -249,7 +284,7 @@ export class ForecastSection extends LitElement {
         <div class="forecast-grid-with-current">
           ${this._renderCurrentWeather()}
           <div class="forecast-days">
-            ${this.forecastType === 'hourly'
+            ${effectiveType === 'hourly'
               ? this._renderHourlyForecast(displayForecast)
               : displayForecast.map((day) => this._renderForecastDay(day))}
           </div>
