@@ -207,11 +207,12 @@ export class ClimateCard extends LitElement implements LovelaceCard {
     if (entity?.attributes?.forecast) {
       const forecast = entity.attributes.forecast as WeatherForecast[];
       this._forecast = forecast;
-      // Detect hourly by checking if the first two entries share the same calendar date
+      // Detect sub-daily (hourly/3-hourly/etc.) by checking the time gap between entries.
+      // A same-date string check breaks for 3-hourly data that straddles midnight.
       if (forecast.length >= 2) {
-        const d0 = forecast[0].datetime.substring(0, 10);
-        const d1 = forecast[1].datetime.substring(0, 10);
-        this._forecastType = d0 === d1 ? 'hourly' : 'daily';
+        const t0 = new Date(forecast[0].datetime).getTime();
+        const t1 = new Date(forecast[1].datetime).getTime();
+        this._forecastType = (t1 - t0) < 24 * 60 * 60 * 1000 ? 'hourly' : 'daily';
       }
     }
   }
