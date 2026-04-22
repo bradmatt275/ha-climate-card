@@ -227,9 +227,12 @@ export class ForecastSection extends LitElement {
 
   render() {
     const collapsible = this.config?.collapsible ?? DEFAULT_WEATHER_CONFIG.collapsible;
-    const forecastDays = this.config?.forecast_days ?? DEFAULT_WEATHER_CONFIG.forecast_days;
-    
-    const displayForecast = this.forecast.slice(0, forecastDays);
+
+    // For hourly forecasts, show all entries unless the user has explicitly set forecast_days.
+    // For daily forecasts, apply the forecast_days cap as before.
+    const displayForecast = (this.forecastType === 'hourly' && this.config?.forecast_days == null)
+      ? this.forecast
+      : this.forecast.slice(0, this.config?.forecast_days ?? DEFAULT_WEATHER_CONFIG.forecast_days);
     const hasCurrentWeather = this._getCurrentWeather() != null;
 
     if (displayForecast.length === 0 && !hasCurrentWeather) {
