@@ -30,6 +30,7 @@ export interface FanEntityConfig {
 export interface WeatherConfig {
   entity: string;
   forecast_days?: number;
+  forecast_type?: 'daily' | 'hourly' | 'twice_daily';
   show_humidity?: boolean;
   collapsible?: boolean;
   collapsed?: boolean;

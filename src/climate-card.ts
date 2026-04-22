@@ -33,6 +33,7 @@ export class ClimateCard extends LitElement implements LovelaceCard {
   @property({ attribute: false }) hass!: HomeAssistant;
   @state() private _config!: ClimateCardConfig;
   @state() private _forecast: WeatherForecast[] = [];
+  @state() private _forecastType: 'daily' | 'hourly' = 'daily';
   @state() private _collapsedState: CollapsibleState = {
     forecast: false,
     temperatures: false,
@@ -151,21 +152,44 @@ export class ClimateCard extends LitElement implements LovelaceCard {
       return;
     }
 
-    try {
+    const configuredType = this._config.weather.forecast_type;
+    const entityId = this._config.weather.entity;
+
+    const trySubscribe = async (forecastType: 'daily' | 'hourly' | 'twice_daily'): Promise<void> => {
       this._forecastUnsubscribe = await this.hass.connection.subscribeMessage<ForecastEvent>(
         (event) => {
           this._forecast = event.forecast ?? [];
+          this._forecastType = forecastType === 'hourly' ? 'hourly' : 'daily';
         },
         {
           type: 'weather/subscribe_forecast',
-          entity_id: this._config.weather.entity,
-          forecast_type: 'daily',
+          entity_id: entityId,
+          forecast_type: forecastType,
         }
       );
-    } catch (error) {
-      console.error('Failed to subscribe to forecast:', error);
-      // Fallback to attribute-based forecast
-      this._loadForecastFromAttributes();
+    };
+
+    if (configuredType) {
+      // User has explicitly configured a type — use it directly
+      try {
+        await trySubscribe(configuredType);
+      } catch (error) {
+        console.error(`Failed to subscribe to forecast (type: ${configuredType}):`, error);
+        this._loadForecastFromAttributes();
+      }
+      return;
+    }
+
+    // Auto-detect: try daily first, fall back to hourly (e.g. OpenWeatherMap)
+    try {
+      await trySubscribe('daily');
+    } catch {
+      try {
+        await trySubscribe('hourly');
+      } catch (error) {
+        console.error('Failed to subscribe to forecast:', error);
+        this._loadForecastFromAttributes();
+      }
     }
   }
 
@@ -181,7 +205,14 @@ export class ClimateCard extends LitElement implements LovelaceCard {
 
     const entity = this.hass.states[this._config.weather.entity];
     if (entity?.attributes?.forecast) {
-      this._forecast = entity.attributes.forecast as WeatherForecast[];
+      const forecast = entity.attributes.forecast as WeatherForecast[];
+      this._forecast = forecast;
+      // Detect hourly by checking if the first two entries share the same calendar date
+      if (forecast.length >= 2) {
+        const d0 = forecast[0].datetime.substring(0, 10);
+        const d1 = forecast[1].datetime.substring(0, 10);
+        this._forecastType = d0 === d1 ? 'hourly' : 'daily';
+      }
     }
   }
 
@@ -223,6 +254,7 @@ export class ClimateCard extends LitElement implements LovelaceCard {
         .hass=${this.hass}
         .config=${this._config.weather}
         .forecast=${this._forecast}
+        .forecastType=${this._forecastType}
         ?collapsed=${this._collapsedState.forecast}
         @toggle-collapse=${this._handleCollapseToggle}
       ></forecast-section>

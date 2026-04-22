@@ -49,6 +49,14 @@ export function getDayFromISOString(isoString: string): string {
 }
 
 /**
+ * Get formatted time string from ISO date string
+ */
+export function getTimeFromISOString(isoString: string): string {
+  const date = new Date(isoString);
+  return formatTime(date);
+}
+
+/**
  * Check if a date is today
  */
 export function isToday(date: Date): boolean {
