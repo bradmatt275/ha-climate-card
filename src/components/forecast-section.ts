@@ -201,9 +201,10 @@ export class ForecastSection extends LitElement {
   }
 
   private _aggregateHourlyToDaily(entries: WeatherForecast[]): WeatherForecast[] {
+    const localDateKey = (dt: string) => { const d = new Date(dt); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
     const byDay = new Map<string, WeatherForecast[]>();
     for (const entry of entries) {
-      const day = entry.datetime.substring(0, 10);
+      const day = localDateKey(entry.datetime);
       if (!byDay.has(day)) byDay.set(day, []);
       byDay.get(day)!.push(entry);
     }
@@ -225,12 +226,14 @@ export class ForecastSection extends LitElement {
   }
 
   private _renderHourlyForecast(entries: WeatherForecast[]) {
-    // Group entries by calendar date to insert day-boundary labels
+    // Group entries by local calendar date to insert day-boundary labels.
+    // We must use local date components, not UTC substring, to avoid timezone mismatches.
+    const localDateKey = (dt: string) => { const d = new Date(dt); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
     let currentDay = '';
     const groups: Array<{ dayLabel: string | null; entry: WeatherForecast }> = [];
 
     for (const entry of entries) {
-      const day = entry.datetime.substring(0, 10);
+      const day = localDateKey(entry.datetime);
       if (day !== currentDay) {
         groups.push({ dayLabel: getDayFromISOString(entry.datetime), entry });
         currentDay = day;
