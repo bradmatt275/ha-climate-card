@@ -170,11 +170,11 @@ export class ForecastSection extends LitElement {
     `;
   }
 
-  private _renderForecastDay(day: WeatherForecast) {
+  private _renderForecastDay(day: WeatherForecast, effectiveType: 'daily' | 'hourly') {
     const icon = getWeatherIcon(day.condition);
     const iconColor = getWeatherIconColor(day.condition);
 
-    if (this.forecastType === 'hourly') {
+    if (effectiveType === 'hourly') {
       const timeLabel = getTimeFromISOString(day.datetime);
       return html`
         <div class="forecast-day">
@@ -229,7 +229,7 @@ export class ForecastSection extends LitElement {
     });
   }
 
-  private _renderHourlyForecast(entries: WeatherForecast[]) {
+  private _renderHourlyForecast(entries: WeatherForecast[], effectiveType: 'daily' | 'hourly') {
     // Group entries by local calendar date to insert day-boundary labels.
     // We must use local date components, not UTC substring, to avoid timezone mismatches.
     const localDateKey = (dt: string) => { const d = new Date(dt); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
@@ -250,7 +250,7 @@ export class ForecastSection extends LitElement {
       ${groups.map(({ dayLabel, entry }) => html`
         <div class="forecast-day-group">
           ${dayLabel ? html`<span class="forecast-day-boundary">${dayLabel}</span>` : nothing}
-          ${this._renderForecastDay(entry)}
+          ${this._renderForecastDay(entry, effectiveType)}
         </div>
       `)}
     `;
@@ -292,8 +292,8 @@ export class ForecastSection extends LitElement {
           ${this._renderCurrentWeather()}
           <div class="forecast-days">
             ${effectiveType === 'hourly'
-              ? this._renderHourlyForecast(displayForecast)
-              : displayForecast.map((day) => this._renderForecastDay(day))}
+              ? this._renderHourlyForecast(displayForecast, effectiveType)
+              : displayForecast.map((day) => this._renderForecastDay(day, effectiveType))}
           </div>
         </div>
       </collapsible-section>
