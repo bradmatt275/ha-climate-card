@@ -128,14 +128,18 @@ export class ForecastSection extends LitElement {
     if (!entity) return null;
 
     // Some integrations (e.g. OpenWeatherMap) report state as "unknown" or "unavailable".
-    // Fall back to the first forecast entry's condition in that case.
+    // Fall back to the first forecast entry's condition and temperature in that case.
     let condition = entity.state;
+    let temperature = entity.attributes.temperature;
     if (condition === 'unknown' || condition === 'unavailable') {
       condition = this.forecast[0]?.condition ?? condition;
+      if (temperature == null) {
+        temperature = this.forecast[0]?.temperature ?? null;
+      }
     }
 
     return {
-      temperature: entity.attributes.temperature,
+      temperature,
       temperature_unit: entity.attributes.temperature_unit ?? '°C',
       condition,
     };
@@ -209,7 +213,7 @@ export class ForecastSection extends LitElement {
       byDay.get(day)!.push(entry);
     }
 
-    return Array.from(byDay.entries()).map(([day, dayEntries]) => {
+    return Array.from(byDay.entries()).map(([, dayEntries]) => {
       const temps = dayEntries.map(e => e.temperature);
       const high = Math.max(...temps);
       const low = Math.min(...temps);
@@ -221,7 +225,7 @@ export class ForecastSection extends LitElement {
         return Math.abs(hour - 12) < Math.abs(bestHour - 12) ? e : best;
       });
 
-      return { ...midday, datetime: `${day}T00:00:00`, temperature: high, templow: low };
+      return { ...midday, temperature: high, templow: low };
     });
   }
 
