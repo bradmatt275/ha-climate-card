@@ -121,31 +121,6 @@ export class ForecastSection extends LitElement {
     .forecast-toggle-wrapper.can-toggle {
       cursor: pointer;
     }
-
-    .view-toggle-pill {
-      position: absolute;
-      top: -24px;
-      right: 0;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--secondary-text-color);
-      opacity: 0.6;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      transition: opacity 150ms ease;
-      pointer-events: none;
-    }
-
-    .forecast-toggle-wrapper.can-toggle:hover .view-toggle-pill {
-      opacity: 1;
-    }
-
-    .view-toggle-pill ha-icon {
-      --mdc-icon-size: 12px;
-    }
   `;
 
   private _handleToggle(): void {
@@ -339,12 +314,6 @@ export class ForecastSection extends LitElement {
           class="forecast-toggle-wrapper ${canToggle ? 'can-toggle' : ''}"
           @click=${canToggle ? this._handleViewToggle : nothing}
         >
-          ${canToggle ? html`
-            <span class="view-toggle-pill">
-              <ha-icon icon="mdi:swap-horizontal"></ha-icon>
-              ${effectiveType === 'hourly' ? 'Daily view' : 'Hourly view'}
-            </span>
-          ` : nothing}
           <div class="forecast-grid-with-current">
             ${this._renderCurrentWeather()}
             <div class="forecast-days">
