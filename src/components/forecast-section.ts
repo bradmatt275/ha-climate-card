@@ -1,5 +1,5 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant } from 'custom-card-helpers';
 import { WeatherConfig, WeatherForecast } from '../types';
 import { cssVariables, forecastStyles, gridStyles, typographyStyles } from '../styles';
@@ -16,6 +16,8 @@ export class ForecastSection extends LitElement {
   @property({ type: Array }) forecast: WeatherForecast[] = [];
   @property({ type: String }) forecastType: 'daily' | 'hourly' = 'daily';
   @property({ type: Boolean }) collapsed = false;
+
+  @state() private _viewOverride: 'daily' | 'hourly' | null = null;
 
   static styles = css`
     ${cssVariables}
@@ -111,6 +113,39 @@ export class ForecastSection extends LitElement {
       letter-spacing: 0.08em;
       padding: 2px 4px 0;
     }
+
+    .forecast-toggle-wrapper {
+      position: relative;
+    }
+
+    .forecast-toggle-wrapper.can-toggle {
+      cursor: pointer;
+    }
+
+    .view-toggle-pill {
+      position: absolute;
+      top: -24px;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--secondary-text-color);
+      opacity: 0.6;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: opacity 150ms ease;
+      pointer-events: none;
+    }
+
+    .forecast-toggle-wrapper.can-toggle:hover .view-toggle-pill {
+      opacity: 1;
+    }
+
+    .view-toggle-pill ha-icon {
+      --mdc-icon-size: 12px;
+    }
   `;
 
   private _handleToggle(): void {
@@ -119,6 +154,17 @@ export class ForecastSection extends LitElement {
       composed: true,
       detail: { section: 'forecast', collapsed: !this.collapsed },
     }));
+  }
+
+  private _handleViewToggle(): void {
+    if (this.forecastType !== 'hourly') return;
+    const displayMode = this.config?.display_mode ?? 'auto';
+    const defaultEffectiveType: 'daily' | 'hourly' =
+      displayMode === 'daily' ? 'daily' :
+      displayMode === 'hourly' ? 'hourly' :
+      this.forecastType;
+    const current = this._viewOverride ?? defaultEffectiveType;
+    this._viewOverride = current === 'hourly' ? 'daily' : 'hourly';
   }
 
   private _getCurrentWeather() {
@@ -259,19 +305,20 @@ export class ForecastSection extends LitElement {
   render() {
     const collapsible = this.config?.collapsible ?? DEFAULT_WEATHER_CONFIG.collapsible;
     const displayMode = this.config?.display_mode ?? 'auto';
+    const canToggle = this.forecastType === 'hourly';
 
-    // Determine the effective display type and process forecast data accordingly
-    const shouldAggregate = displayMode === 'daily' && this.forecastType === 'hourly';
-    const effectiveType: 'daily' | 'hourly' = shouldAggregate
-      ? 'daily'
-      : (displayMode === 'hourly' ? 'hourly' : this.forecastType);
+    // Determine effective type: config default, then user override
+    const defaultEffectiveType: 'daily' | 'hourly' =
+      displayMode === 'daily' ? 'daily' :
+      displayMode === 'hourly' ? 'hourly' :
+      this.forecastType;
+    const effectiveType: 'daily' | 'hourly' = this._viewOverride ?? defaultEffectiveType;
 
+    const shouldAggregate = effectiveType === 'daily' && this.forecastType === 'hourly';
     const processed = shouldAggregate
       ? this._aggregateHourlyToDaily(this.forecast)
       : this.forecast;
 
-    // Apply forecast_days cap: for hourly auto-mode show all unless explicitly set;
-    // for daily (including aggregated) always apply the cap.
     const displayForecast = (effectiveType === 'hourly' && this.config?.forecast_days == null)
       ? processed
       : processed.slice(0, this.config?.forecast_days ?? DEFAULT_WEATHER_CONFIG.forecast_days);
@@ -288,12 +335,23 @@ export class ForecastSection extends LitElement {
         ?collapsible=${collapsible}
         @toggle-collapse=${this._handleToggle}
       >
-        <div class="forecast-grid-with-current">
-          ${this._renderCurrentWeather()}
-          <div class="forecast-days">
-            ${effectiveType === 'hourly'
-              ? this._renderHourlyForecast(displayForecast, effectiveType)
-              : displayForecast.map((day) => this._renderForecastDay(day, effectiveType))}
+        <div
+          class="forecast-toggle-wrapper ${canToggle ? 'can-toggle' : ''}"
+          @click=${canToggle ? this._handleViewToggle : nothing}
+        >
+          ${canToggle ? html`
+            <span class="view-toggle-pill">
+              <ha-icon icon="mdi:swap-horizontal"></ha-icon>
+              ${effectiveType === 'hourly' ? 'Daily view' : 'Hourly view'}
+            </span>
+          ` : nothing}
+          <div class="forecast-grid-with-current">
+            ${this._renderCurrentWeather()}
+            <div class="forecast-days">
+              ${effectiveType === 'hourly'
+                ? this._renderHourlyForecast(displayForecast, effectiveType)
+                : displayForecast.map((day) => this._renderForecastDay(day, effectiveType))}
+            </div>
           </div>
         </div>
       </collapsible-section>
